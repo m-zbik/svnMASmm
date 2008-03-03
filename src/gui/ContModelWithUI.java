@@ -138,7 +138,7 @@ public class ContModelWithUI extends GUIState {
 
 		returnHist = new HistogramGenerator();
 		returnHist.setTitle("Returns histogram");
-		returnHist.setDomainAxisLabel("Value");
+		returnHist.setDomainAxisLabel("Values");
 		returnHist.setRangeAxisLabel("Number of observations");
 		returnHist.addSeries(fakeArray, 20, "Return histogram", null);
 		returnHist.update();
