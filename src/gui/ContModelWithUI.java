@@ -84,7 +84,7 @@ public class ContModelWithUI extends GUIState {
 
 				if (returnHistFrame.isVisible()) {
 					Double[] tempArray = new Double[myReporter.returnMemory.size()];
-					tempArray = myReporter.returnMemory.toArray(tempArray);
+					tempArray = myReporter.returnMemory.values().toArray(tempArray);
 					double[] temp2Array = new double[myReporter.returnMemory.size()];
 					for (int i = 0; i < temp2Array.length; i++) {
 						temp2Array[i] = tempArray[i].doubleValue();
@@ -97,7 +97,9 @@ public class ContModelWithUI extends GUIState {
 				}
 				
 				if (priceFrame.isVisible()) {
+					priceChart.disable();
 					myReporter.setSeries();
+					priceChart.enable();
 				}
 			}
 		};
@@ -138,7 +140,7 @@ public class ContModelWithUI extends GUIState {
 
 		returnHist = new HistogramGenerator();
 		returnHist.setTitle("Returns histogram");
-		returnHist.setDomainAxisLabel("Values");
+		returnHist.setDomainAxisLabel("Value");
 		returnHist.setRangeAxisLabel("Number of observations");
 		returnHist.addSeries(fakeArray, 20, "Return histogram", null);
 		returnHist.update();
