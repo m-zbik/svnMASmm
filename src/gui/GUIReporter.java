@@ -44,7 +44,7 @@ public class GUIReporter implements Steppable {
 
 	public void step(SimState state) {
 
-		if (state.schedule.getTime() > nextUpdate) {
+		if (state.schedule.getTime() >= nextUpdate) {
 
 			priceMemory.put((int) myModel.schedule.getTime(), myModel.myMarket.price_t);
 			returnMemory.add(myModel.myMarket.returnRate_t);
@@ -84,6 +84,8 @@ public class GUIReporter implements Steppable {
 	public void acfAbsReturns() {
 
 		System.out.println("Computing ACF");
+		
+		
 
 		// make an array of the absolute value of the returns
 		double[] absRetArray = new double[returnMemory.size()];
@@ -91,7 +93,7 @@ public class GUIReporter implements Steppable {
 			absRetArray[i] = Math.abs(returnMemory.get(i));
 		}
 
-		for (int lag = 1; lag < Math.min(200, returnMemory.size()); lag++) {
+		for (int lag = 1; lag < Math.min(199, returnMemory.size()); lag++) {
 
 			double autocorr_lag = autocorrelation(absRetArray, lag);
 			// instead of clearing and adding, we just replace the earlier

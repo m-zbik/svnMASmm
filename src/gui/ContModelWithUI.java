@@ -83,7 +83,7 @@ public class ContModelWithUI extends GUIState {
 
 			public void step(SimState state) {
 
-				if (state.schedule.getTime() > nextUpdate) {
+				if (state.schedule.getTime() >= nextUpdate) {
 
 					if (returnHistFrame.isVisible()) {
 						Double[] tempArray = new Double[myReporter.returnMemory.size()];
