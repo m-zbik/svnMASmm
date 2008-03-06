@@ -84,12 +84,14 @@ public class ContModelWithUI extends GUIState {
 
 				if (returnHistFrame.isVisible()) {
 					Double[] tempArray = new Double[myReporter.returnMemory.size()];
-					tempArray = myReporter.returnMemory.values().toArray(tempArray);
+					tempArray = myReporter.returnMemory.toArray(tempArray);
 					double[] temp2Array = new double[myReporter.returnMemory.size()];
 					for (int i = 0; i < temp2Array.length; i++) {
 						temp2Array[i] = tempArray[i].doubleValue();
 					}
-					returnHist.updateSeries(0, temp2Array, false);
+					if (temp2Array.length>0) {
+					  returnHist.updateSeries(0, temp2Array, false);
+					}
 				}
 
 				if (acfFrame.isVisible()) {
