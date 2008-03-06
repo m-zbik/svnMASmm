@@ -22,7 +22,10 @@ public class GUIReporter implements Steppable {
 	public HashMap<Integer, Double> priceMemory = new HashMap<Integer, Double>();
 
 	public Vector<Double> returnMemory = new Vector<Double>();
+
 	ContModel myModel;
+
+	public int nextUpdate = 0;
 	
 	public int lastUpdate = 0;
 
@@ -33,17 +36,22 @@ public class GUIReporter implements Steppable {
 		priceSeries.setMaximumItemCount(2000);
 		returnSeries.setMaximumItemCount(2000);
 		// initialize
-		for (int i=0; i<200; i++) {
-		  acfAbsReturnsSeries.add(i,0.0);
+		for (int i = 0; i < 200; i++) {
+			acfAbsReturnsSeries.add(i, 0.0);
 		}
-		
+
 	}
 
 	public void step(SimState state) {
 
-		priceMemory.put((int) myModel.schedule.getTime(), myModel.myMarket.price_t);
-		returnMemory.add(myModel.myMarket.returnRate_t);
-		
+		if (state.schedule.getTime() > nextUpdate) {
+
+			priceMemory.put((int) myModel.schedule.getTime(), myModel.myMarket.price_t);
+			returnMemory.add(myModel.myMarket.returnRate_t);
+
+			nextUpdate = nextUpdate + 1;
+		}
+
 	}
 
 	public void setSeries() {
@@ -51,10 +59,9 @@ public class GUIReporter implements Steppable {
 		System.out.println("Updating series");
 
 		// priceSeries.clear();
-		
+
 		int start = lastUpdate;
 		int stop = (int) myModel.schedule.getTime();
-		
 
 		for (int i = start; i < stop; i++) {
 
@@ -66,10 +73,11 @@ public class GUIReporter implements Steppable {
 			}
 
 		}
-		
-		if (stop>start) lastUpdate = stop;
 
-//		System.out.println();
+		if (stop > start)
+			lastUpdate = stop;
+
+		// System.out.println();
 		System.out.println("Finished updating series");
 	}
 
@@ -79,27 +87,26 @@ public class GUIReporter implements Steppable {
 
 		// make an array of the absolute value of the returns
 		double[] absRetArray = new double[returnMemory.size()];
-        for (int i=0; i < absRetArray.length; i++) {
-        	absRetArray[i] = Math.abs(returnMemory.get(i));
+		for (int i = 0; i < absRetArray.length; i++) {
+			absRetArray[i] = Math.abs(returnMemory.get(i));
 		}
-		
-		for (int lag = 1; lag < Math.min(200, returnMemory.size()); lag++) 
-		{
-             
+
+		for (int lag = 1; lag < Math.min(200, returnMemory.size()); lag++) {
+
 			double autocorr_lag = autocorrelation(absRetArray, lag);
-		    // instead of clearing and adding, we just replace the earlier values
-		    acfAbsReturnsSeries.updateByIndex(lag, autocorr_lag);
-//			if (lag % 20 == 0) {
-//				System.out.print(".");
-//			}
+			// instead of clearing and adding, we just replace the earlier
+			// values
+			acfAbsReturnsSeries.updateByIndex(lag, autocorr_lag);
+			// if (lag % 20 == 0) {
+			// System.out.print(".");
+			// }
 		}
 		System.out.println();
 		System.out.println("Finished ACF");
 
 	}
 
-	public static double correlation(double[] rankArray1, double[] rankArray2) 
-	{
+	public static double correlation(double[] rankArray1, double[] rankArray2) {
 
 		int nObs = rankArray1.length;
 		double mua = 0;
@@ -117,23 +124,21 @@ public class GUIReporter implements Steppable {
 		}
 		return ((nObs * prod) - (mua) * (mub)) / Math.sqrt(((nObs * a2 - mua * mua)) * ((nObs * b2 - mub * mub)));
 	}
-	
-	public static double autocorrelation(double[] array, int lag) 
-	{
-        if (lag>=array.length) {
-        	return 0.0;
-        }
-        
-		int arraySize=array.length - lag;
-        double[] rankArray1=new double[arraySize];
-		double[] rankArray2=new double[arraySize];
 
-		System.arraycopy(array, 0, rankArray1, 0, array.length-lag);
-		System.arraycopy(array, lag, rankArray2, 0, array.length-lag);
+	public static double autocorrelation(double[] array, int lag) {
+		if (lag >= array.length) {
+			return 0.0;
+		}
+
+		int arraySize = array.length - lag;
+		double[] rankArray1 = new double[arraySize];
+		double[] rankArray2 = new double[arraySize];
+
+		System.arraycopy(array, 0, rankArray1, 0, array.length - lag);
+		System.arraycopy(array, lag, rankArray2, 0, array.length - lag);
 
 		return correlation(rankArray1, rankArray2);
 
 	}
-	
 
 }

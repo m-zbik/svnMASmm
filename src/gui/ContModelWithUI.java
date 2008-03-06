@@ -38,6 +38,8 @@ public class ContModelWithUI extends GUIState {
 
 	public GUIReporter myReporter;
 
+	public double nextUpdate = 0;
+
 	public static void main(String[] args) {
 		ContModelWithUI householdWorld = new ContModelWithUI();
 		Console c = new Console(householdWorld);
@@ -81,27 +83,31 @@ public class ContModelWithUI extends GUIState {
 
 			public void step(SimState state) {
 
+				if (state.schedule.getTime() > nextUpdate) {
 
-				if (returnHistFrame.isVisible()) {
-					Double[] tempArray = new Double[myReporter.returnMemory.size()];
-					tempArray = myReporter.returnMemory.toArray(tempArray);
-					double[] temp2Array = new double[myReporter.returnMemory.size()];
-					for (int i = 0; i < temp2Array.length; i++) {
-						temp2Array[i] = tempArray[i].doubleValue();
+					if (returnHistFrame.isVisible()) {
+						Double[] tempArray = new Double[myReporter.returnMemory.size()];
+						tempArray = myReporter.returnMemory.toArray(tempArray);
+						double[] temp2Array = new double[myReporter.returnMemory.size()];
+						for (int i = 0; i < temp2Array.length; i++) {
+							temp2Array[i] = tempArray[i].doubleValue();
+						}
+						if (temp2Array.length > 0) {
+							returnHist.updateSeries(0, temp2Array, false);
+						}
 					}
-					if (temp2Array.length>0) {
-					  returnHist.updateSeries(0, temp2Array, false);
-					}
-				}
 
-				if (acfFrame.isVisible()) {
-					myReporter.acfAbsReturns();
-				}
-				
-				if (priceFrame.isVisible()) {
-					priceChart.disable();
-					myReporter.setSeries();
-					priceChart.enable();
+					if (acfFrame.isVisible()) {
+						myReporter.acfAbsReturns();
+					}
+
+					if (priceFrame.isVisible()) {
+						priceChart.disable();
+						myReporter.setSeries();
+						priceChart.enable();
+					}
+
+					nextUpdate = nextUpdate + 1;
 				}
 			}
 		};
@@ -126,7 +132,7 @@ public class ContModelWithUI extends GUIState {
 		priceFrame.getContentPane().add(priceChart, BorderLayout.CENTER);
 		priceFrame.pack();
 		c.registerFrame(priceFrame);
-		
+
 		acfChart = new TimeSeriesChartGenerator();
 		acfChart.setTitle("ACF of absolute returns");
 		acfChart.setDomainAxisLabel("Lag");
