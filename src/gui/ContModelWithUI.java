@@ -127,6 +127,7 @@ public class ContModelWithUI extends GUIState {
 		priceChart.setRangeAxisLabel("Price");
 		priceChart.addSeries(myReporter.priceSeries, null);
 		priceChart.addSeries(myReporter.returnSeries, null);
+		priceChart.addSeries(myReporter.absReturnSeries, null);
 		priceFrame = priceChart.createFrame(this);
 		priceFrame.getContentPane().setLayout(new BorderLayout());
 		priceFrame.getContentPane().add(priceChart, BorderLayout.CENTER);
@@ -134,10 +135,11 @@ public class ContModelWithUI extends GUIState {
 		c.registerFrame(priceFrame);
 
 		acfChart = new TimeSeriesChartGenerator();
-		acfChart.setTitle("ACF of absolute returns");
+		acfChart.setTitle("Autocorrelation of returns");
 		acfChart.setDomainAxisLabel("Lag");
 		acfChart.setRangeAxisLabel("Correlation");
 		acfChart.addSeries(myReporter.acfAbsReturnsSeries, null);
+		acfChart.addSeries(myReporter.acfReturnsSeries, null);
 		acfFrame = acfChart.createFrame(this);
 		acfFrame.getContentPane().setLayout(new BorderLayout());
 		acfFrame.getContentPane().add(acfChart, BorderLayout.CENTER);
@@ -150,7 +152,7 @@ public class ContModelWithUI extends GUIState {
 		returnHist.setTitle("Returns histogram");
 		returnHist.setDomainAxisLabel("Value");
 		returnHist.setRangeAxisLabel("Number of observations");
-		returnHist.addSeries(fakeArray, 20, "Return histogram", null);
+		returnHist.addSeries(fakeArray, 40, "Return histogram", null);
 		returnHist.update();
 		returnHistFrame = returnHist.createFrame(this);
 		returnHistFrame.getContentPane().setLayout(new BorderLayout());
