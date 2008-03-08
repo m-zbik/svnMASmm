@@ -1,5 +1,6 @@
-package model;
+package model.market;
 
+import model.ContModel;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
@@ -32,7 +33,7 @@ public class Market implements Steppable {
 	{
 		// calculate return rate; the excess demand is already known 
 		// as it is called by agents during order generation phase
-		returnRate_t = this.priceImpact(excessDemand / myWorld.N);
+		returnRate_t = this.priceImpact(excessDemand / myWorld.parameterMap.get("N"));
 		// calculate new price
 		price_t = price_t * Math.exp(returnRate_t);
 		// clear out excess demand parameter
@@ -42,7 +43,7 @@ public class Market implements Steppable {
 	// calculate the return rate
 	public double priceImpact(double d) 
 	{
-		return Math.atan(d/myWorld.lambda);
+		return Math.atan(d/myWorld.parameterMap.get("lambda"));
 		//return Math.atan2(d, myWorld.lambda);
 		//return d / myWorld.lambda; 
 	}
