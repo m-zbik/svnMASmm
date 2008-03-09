@@ -42,7 +42,7 @@ public class GUIReporter implements Steppable {
 		returnSeries.setMaximumItemCount(NumViewable);
 		absReturnSeries.setMaximumItemCount(NumViewable);
 		// initialize
-		for (int i = 0; i < ACFViewable; i++) {
+		for (int i = 1; i < ACFViewable; i++) {
 			acfAbsReturnsSeries.add(i, 0.0);
 			acfReturnsSeries.add(i, 0.0);
 		}

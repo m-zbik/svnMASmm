@@ -29,9 +29,9 @@ public class Reporter implements Steppable {
 			
 			
 			String temp = "";
-			temp = temp + "runID" + ";";
-			temp = temp + "time" + ";";
-			temp = temp + "price" + ";";
+			temp = temp + "runID" + "	";
+			temp = temp + "time" + "	";
+			temp = temp + "price" + "	";
 			temp = temp + "return" ;
 			
 
@@ -60,10 +60,10 @@ public class Reporter implements Steppable {
 		try {
 
 			String temp = "";
-			temp = temp + myModel.runID + ";";
-			temp = temp + myModel.schedule.getTime() + ";";
-			temp = temp + myModel.myMarket.price_t + ";";
-			temp = temp + myModel.myMarket.returnRate_t + ";";
+			temp = temp + myModel.runID + "	";
+			temp = temp + myModel.schedule.getTime() + "	";
+			temp = temp + myModel.myMarket.price_t + "	";
+			temp = temp + myModel.myMarket.returnRate_t;
 		
 
 			outPrices.write(temp);

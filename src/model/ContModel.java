@@ -41,7 +41,9 @@ public class ContModel extends SimState {
 	// external signal to update threshold
 	public double epsilon_t;
 	
-	public int runID;
+	public int runID = 0;
+	
+	public boolean wrapperActive = false;
 
 	// constructor
 	public ContModel(long seed) {
@@ -52,7 +54,13 @@ public class ContModel extends SimState {
 
 	public void start() {
 		
+		super.start();
+		
+		this.schedule.reset();
+		
 		myCreator.buildContAgents();
+		
+		runID++;
 
 		// another embedded class; generates a new epsilon value
 		final Steppable signalAgent = new Steppable() {
@@ -74,6 +82,12 @@ public class ContModel extends SimState {
 
 			public void step(SimState state) {
 
+				
+				
+				if (!wrapperActive) {
+					myReporter.finishAll();
+				}
+				
 				state.finish();
 
 			}
@@ -81,6 +95,8 @@ public class ContModel extends SimState {
 		
 		// run the model maxT times and then finish the execution
 		schedule.scheduleOnce(this.parameterMap.get("maxT"), (int) schedule.MAXIMUM_INTEGER, finalAgent);
+		
+		schedule.scheduleRepeating(myReporter, 10, 1);
 	}
 
 	/**
