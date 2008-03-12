@@ -20,7 +20,7 @@ import support.Reporter;
  * Initializes N traders and runs trades for a maxT number of times
  */
 
-public class ContModel extends SimState {
+public class FinancialModel extends SimState {
 
 	private static final long serialVersionUID = 1L;
 
@@ -46,7 +46,7 @@ public class ContModel extends SimState {
 	public boolean wrapperActive = false;
 
 	// constructor
-	public ContModel(long seed) {
+	public FinancialModel(long seed) {
 		super(seed);
 		this.myReporter = new Reporter(this);
 		this.myCreator = new ModelFactory(this);
@@ -104,7 +104,7 @@ public class ContModel extends SimState {
 	 */
 	public static void main(String[] args) {
 		// run the model 
-		doLoop(ContModel.class, args);
+		doLoop(FinancialModel.class, args);
 		System.exit(0);
 
 	}

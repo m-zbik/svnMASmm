@@ -4,7 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import model.ContModel;
+import model.FinancialModel;
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -17,9 +17,9 @@ public class Reporter implements Steppable {
 	
 	BufferedWriter outParameters;
 
-	ContModel myModel;
+	FinancialModel myModel;
 
-	public Reporter(ContModel myModel) {
+	public Reporter(FinancialModel myModel) {
 
 		this.myModel = myModel;
 
@@ -31,7 +31,9 @@ public class Reporter implements Steppable {
 			String temp = "";
 			temp = temp + "runID" + "	";
 			temp = temp + "time" + "	";
-			temp = temp + "price" + "	";
+			temp = temp + "asset" + "	";
+			temp = temp + "askPrice" + "	";
+			temp = temp + "bidPrice" + "	";
 			temp = temp + "return" ;
 			
 
@@ -59,16 +61,19 @@ public class Reporter implements Steppable {
 
 		try {
 
+			for (int asset =0; asset < myModel.parameterMap.get("numAssets"); asset++) {
+			
 			String temp = "";
 			temp = temp + myModel.runID + "	";
 			temp = temp + myModel.schedule.getTime() + "	";
-			temp = temp + myModel.myMarket.price_t + "	";
-			temp = temp + myModel.myMarket.returnRate_t;
+			temp = temp + myModel.myMarket.getAskPriceForAsset(asset)+ "	";
+			temp = temp + myModel.myMarket.getBidPriceForAsset(asset)+ "	";
+			temp = temp + myModel.myMarket.getReturnRateForAsset(asset);
 		
-
 			outPrices.write(temp);
 			outPrices.newLine();			
 
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

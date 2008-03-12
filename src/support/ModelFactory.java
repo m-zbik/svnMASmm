@@ -5,27 +5,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import model.ContModel;
+import model.FinancialModel;
 import model.agents.ContPlayer;
 import model.market.Market;
-
-
+import model.market.books.*;
+import model.market.books.OrderBook;
 
 public class ModelFactory {
 
 	public boolean returnSim = false;
 
-	public ContModel target;
+	public FinancialModel target;
 
 	String fileName;
 
-	public ModelFactory(ContModel target) {
+	public ModelFactory(FinancialModel target) {
 
 		/* Read in logging settings. */
 
 		if (target == null) {
 			returnSim = true;
-			target = new ContModel(System.currentTimeMillis());
+			target = new FinancialModel(System.currentTimeMillis());
 		} else {
 			this.target = target;
 		}
@@ -43,11 +43,16 @@ public class ModelFactory {
 		target.parameterMap.put("D", new Double(properties.getProperty("D", "2")));
 		target.parameterMap.put("lambda", new Double(properties.getProperty("lambda", "10")));
 		target.parameterMap.put("maxT", new Double(properties.getProperty("maxT", "100000")));
-				
-	}
-	
-	public void buildContAgents() {
+		target.parameterMap.put("numAssets", new Double(properties.getProperty("numAssets", "1")));
 		
+		target.optionsMap.put("agentClass", properties.getProperty("agentClass", "ContPlayer"));
+		target.optionsMap.put("orderBookClass", properties.getProperty("orderBookClass", "ContBook"));
+		
+		
+	}
+
+	public void buildContAgents() {
+
 		// initialize an array list of traders
 		target.agentList = new ArrayList<ContPlayer>();
 
@@ -61,14 +66,32 @@ public class ModelFactory {
 			target.agentList.add(tempAgent);
 			// schedule agents
 			target.schedule.scheduleRepeating(tempAgent, 1, 1.0);
-			
+
 		}
+
 		// initialize market agent
 		target.myMarket = new Market(target);
+
+		try {
+			for (int a = 0; a < target.parameterMap.get("numAssets"); a++) {
+				target.myMarket.orderBooks.add((OrderBook) Class.forName("model.market.books." + target.optionsMap.get("orderBookClass")).newInstance());
+			}
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		for (int a = 0; a < target.parameterMap.get("numAssets"); a++) {
+			target.myMarket.orderBooks.get(a).setMyWorld(target);
+		}
+		
 		target.schedule.scheduleRepeating(target.myMarket, 2, 1.0);
-		
-		
-		
-		
+
 	}
 }

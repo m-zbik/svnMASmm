@@ -1,4 +1,4 @@
-package model;
+package model.market.books;
 
 public class LiquidityException extends Exception {
 	LiquidityException(int qExecd, double totalPrice) {

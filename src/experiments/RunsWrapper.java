@@ -1,6 +1,6 @@
 package experiments;
 
-import model.ContModel;
+import model.FinancialModel;
 
 public class RunsWrapper {
 
@@ -9,7 +9,7 @@ public class RunsWrapper {
 	 */
 	public static void main(String[] args) {
 
-		ContModel hhw = new ContModel(System.currentTimeMillis());
+		FinancialModel hhw = new FinancialModel(System.currentTimeMillis());
 		hhw.wrapperActive = true;
 
 		for (int t = 0; t < 6; t++) {

@@ -1,6 +1,8 @@
 package model.agents;
 
-import model.ContModel;
+import model.FinancialModel;
+import model.market.books.LimitOrder;
+import model.market.books.OrderBook.OrderType;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
@@ -22,12 +24,12 @@ public class ContPlayer implements Steppable {
 	int id;
 
 	// instantiate ContModel class in order to access its variables
-	public ContModel myWorld;
+	public FinancialModel myWorld;
 
 	public double s_local;
 
 	// constructor
-	public ContPlayer(ContModel myWorld, int id) {
+	public ContPlayer(FinancialModel myWorld, int id) {
 
 		this.myWorld = myWorld;
 		this.id = id;
@@ -49,23 +51,30 @@ public class ContPlayer implements Steppable {
 	// generate an order if trader's threshold is above or below
 	// a market wide parameter epsilon_t
 	public void generateOrders() {
-		int order;
+		
+		LimitOrder tempOrder;
 
 		// if epsilon_t is below the negative value of threshold
 		// issue an order to sell
 		if (myWorld.epsilon_t < -1 * this.threshold) {
-			order = -1;
+			double currentAskPrice = this.myWorld.myMarket.getAskPriceForAsset(0);	
+			tempOrder = new LimitOrder(OrderType.SALE, currentAskPrice, 1, 1,0);
+			this.myWorld.myMarket.acceptOrder(tempOrder);
 			// if epsilon_t is above the positive value of threshold
 			// issue an order to buy
 		} else if (myWorld.epsilon_t > this.threshold) {
-			order = 1;
-			// otherwise do nothing
+			
+			double currentBidPrice = this.myWorld.myMarket.getBidPriceForAsset(0);	
+			tempOrder = new LimitOrder(OrderType.PURCHASE, currentBidPrice, 1, 1,0);
+			this.myWorld.myMarket.acceptOrder(tempOrder);
+			
+			
 		} else {
-			order = 0;
+			// otherwise do nothing
 		}
 
 		// pass the order value to the market agent
-		this.myWorld.myMarket.acceptOrder(order);
+		
 
 	}
 
@@ -74,7 +83,7 @@ public class ContPlayer implements Steppable {
 		// generate a random value between 0 and 1 from uniform distribution
 		double u_i_t = myWorld.random.nextDouble();
 		// get the current return rate from the market agent
-		double r_t = myWorld.myMarket.returnRate_t;
+		double r_t = myWorld.myMarket.getReturnRateForAsset(0);
 
 		// update threshold if a random value u_i_t is below
 		// the given update frequency 's'

@@ -1,6 +1,10 @@
 package model.market;
 
-import model.ContModel;
+import java.util.ArrayList;
+
+import model.FinancialModel;
+import model.market.books.LimitOrder;
+import model.market.books.OrderBook;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
@@ -13,46 +17,45 @@ import sim.engine.Steppable;
  */
 
 public class Market implements Steppable {
-	// instantiate ContModel class in order to access its variables
-	public ContModel myWorld;
-	// set initial market price to one
-	public double price_t = 1;
-	// set initial excess demand to zero
-	public double excessDemand = 0;
-	// set initial return rate to zero
-	public double returnRate_t = 0; 
-	
+
+	public FinancialModel myWorld;
+
+	// ArrayList of orderBooks (one for each of the assets)
+	public ArrayList<OrderBook> orderBooks = new ArrayList<OrderBook>();
+
 	// constructor
-	public Market(ContModel myWorld) {
+	public Market(FinancialModel myWorld) {
 		this.myWorld = myWorld;
+
+		for (int o = 0; o < myWorld.parameterMap.get("numAssets"); o++) {
+
+		}
+
 	}
-	
+
 	// function contains the main business logic of the class
 	// generates return rate and new price
-	public void step(SimState state) 
-	{
-		// calculate return rate; the excess demand is already known 
-		// as it is called by agents during order generation phase
-		returnRate_t = this.priceImpact(excessDemand / myWorld.parameterMap.get("N"));
-		// calculate new price
-		price_t = price_t * Math.exp(returnRate_t);
-		// clear out excess demand parameter
-		excessDemand = 0.0;				
+	public void step(SimState state) {
+		for (OrderBook b : this.orderBooks) {
+			b.cleanup();
+		}
 	}
-	
-	// calculate the return rate
-	public double priceImpact(double d) 
-	{
-		return Math.atan(d/myWorld.parameterMap.get("lambda"));
-		//return Math.atan2(d, myWorld.lambda);
-		//return d / myWorld.lambda; 
+
+	public double getReturnRateForAsset(int i) {
+		return this.orderBooks.get(i).getReturnRate();
 	}
-	
-	// calculate excess demand; the function is called by agents 
-	// during the order generation phase
-	public void acceptOrder(int order) 
-	{
-		excessDemand += order;
+
+	public double getAskPriceForAsset(int i) {
+		return this.orderBooks.get(i).getAskPrice();
+	}
+
+	public void acceptOrder(LimitOrder tempOrder) {
+		this.orderBooks.get(tempOrder.asset).placeLimitOrder(tempOrder);
+		
+	}
+
+	public double getBidPriceForAsset(int i) {
+		return this.orderBooks.get(i).getBidPrice();
 	}
 
 }
