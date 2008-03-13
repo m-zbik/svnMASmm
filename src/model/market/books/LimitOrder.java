@@ -1,7 +1,7 @@
 package model.market.books;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
+import java.util.concurrent.atomic.AtomicLong;
 import model.market.books.OrderBook.OrderType;
 
 public class LimitOrder {
@@ -45,6 +45,16 @@ public class LimitOrder {
 		return quantity - quantityExecuted.get();
 	}
 
+	public boolean equals(LimitOrder lo) {
+		if (lo.orderBookID == orderBookID &&
+		    lo.transactionID == transactionID &&
+		    lo.quantity == quantity &&
+		    lo.type == type) {
+			return true;
+		} else 
+			return false;
+	}
+	
 	final public OrderType type;
 	
 	final public int asset;
@@ -58,7 +68,7 @@ public class LimitOrder {
 	final public double expirationTime;
 
 	// These items set when order is placed
-	// AtomicLong transactionID; //Not needed?
+	public AtomicLong transactionID;
 	public AtomicInteger orderBookID;
 
 	// This item is set as order is executed

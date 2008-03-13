@@ -6,7 +6,8 @@ package model.market.books;
 import model.FinancialModel;
 import model.market.books.OrderBook.OrderType;
 
-import java.util.HashMap;
+import java.util.*;
+import java.util.TreeMap;
 import java.util.Vector;
 import org.jfree.data.xy.XYSeries;
 import java.lang.IllegalArgumentException;
@@ -23,40 +24,36 @@ import java.lang.IllegalArgumentException;
  */
 public class DoubleAuctionOrderBook implements OrderBook {
 	private static int nextOrderBookID = 0;
+	protected static long nextTransactionID = 0;
+	
 
 	// number of possible transaction prices per cash value
 	// (for 100.0, trades can execute at the level of cents)
 	private final static double granularity = 1000.0;
 	
 	public DoubleAuctionOrderBook() {
-		this.buyOrderQueues = new HashMap<Integer, Vector<LimitOrder>>();
-	}
-	
-
-	public DoubleAuctionOrderBook(FinancialModel myWorld) {
 		super();
+
+		this.buyOrderQueues = new TreeMap<Integer, Vector<LimitOrder>>();
+		this.sellOrderQueues = new TreeMap<Integer, Vector<LimitOrder>>();
 		
-		this.myWorld = myWorld;
-		// this.nextTransactionID=0;
 		this.myID = nextOrderBookID++;
 	}
 
-	// these will return a transactionID. the price must be rounded to
-	// thousandths of a unit. quantity is a whole number to purchase (initially
-	// this will probably be 1),
-	// expirationSteps is the number of ticks after which the order will be
-	// considered to have been cancelled
-	// NOTE: prices should be rounded to the nearest 1/granularity or there will
-	// be discrepancies
 	public synchronized boolean placeLimitOrder(LimitOrder order) {
-		int internalPrice = (int) (order.pricePerUnit * granularity);
+		int internalPrice = internalPrice(order.pricePerUnit);
 		if ((double) internalPrice / granularity != order.pricePerUnit) {
 			// improperly rounded price
+			return false;
+		}
+		if (order.quantity<=0) {
 			return false;
 		}
 
 		// indicate that this order refers to this orderbook
 		order.orderBookID.set(this.myID);
+		// give it a new, unique transaction ID within the orderbook
+		order.transactionID.set(nextTransactionID++);
 
 		// Note: We never let limit orders execute immediately.
 		// This means it's possible to achieve a negative spread, if an offer is
@@ -67,7 +64,9 @@ public class DoubleAuctionOrderBook implements OrderBook {
 		// occur.
 		// This is why we have separate buy and sell orderqueue hashes
 
-		if (order.quantity > 0) { // purchase order
+		if (order.type == OrderType.PURCHASE) {
+			// store in the tree as negative price to allow forward iteration.
+			internalPrice=-internalPrice; 
 			// find the correct queue to place this order on
 			Vector<LimitOrder> priceQueue = buyOrderQueues.get(internalPrice);
 			if (priceQueue == null) { // queue doesn't exist, create it
@@ -76,28 +75,6 @@ public class DoubleAuctionOrderBook implements OrderBook {
 			}
 			priceQueue.add(order); // add order to the end of the vector
 
-			if (internalPrice > bidPrice || !buyOrderQueues.containsKey(bidPrice)) { // if
-				// this
-				// purchase
-				// is
-				// bidding
-				// more
-				// than
-				// the
-				// rest,
-				// or
-				// there
-				// are
-				// no
-				// others,
-				// set
-				// it
-				bidPrice = internalPrice;
-			}
-			if (internalPrice < lowestBid || !buyOrderQueues.containsKey(lowestBid)) {
-				lowestBid = internalPrice;
-			}
-			// TODO: update GUI Quantities
 		} else // sale order
 		{
 			// find the correct queue to place this order on
@@ -107,15 +84,6 @@ public class DoubleAuctionOrderBook implements OrderBook {
 				sellOrderQueues.put(internalPrice, priceQueue);
 			}
 			priceQueue.add(order); // add order to the end of the vector
-
-			if (internalPrice < askPrice || !sellOrderQueues.containsKey(askPrice)) {
-				askPrice = internalPrice;
-			}
-			if (internalPrice > highestAsk || !buyOrderQueues.containsKey(highestAsk)) {
-				lowestBid = internalPrice;
-			}
-
-			// TODO: update GUI Quantities
 		}
 
 		return true;
@@ -125,7 +93,35 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	// Returns true on successful cancellation with no units transacted.
 	// Returns false otherwise; final status can be found in order.
 	public synchronized boolean cancelLimitOrder(LimitOrder order) {
-		return false; // not implemented
+		Vector<LimitOrder> queue = null;
+		if (order.type == OrderType.PURCHASE) {
+			int p = -internalPrice(order.pricePerUnit);
+			queue=buyOrderQueues.get(p);
+			if (queue.size()==1 && queue.get(0) == order) {
+				queue=null;
+				buyOrderQueues.remove(p);
+				return true;
+			}
+		} else {
+			int p = internalPrice(order.pricePerUnit);
+			queue=sellOrderQueues.get(internalPrice(order.pricePerUnit));		   			
+			if (queue.size()==1 && queue.get(0) == order) {
+				queue=null;
+				sellOrderQueues.remove(p);
+				return true;
+			}
+		}
+		
+		boolean succeeded=false;   
+		Iterator<LimitOrder> it = queue.iterator ();
+		while (it.hasNext ()) {
+			if (it.next() == order) {
+				it.remove();
+				succeeded=true;	break;
+			}
+		}
+		
+		return succeeded;
 	}
 
 	// Returns total price of purchasing 'quantity' units if successful.
@@ -134,155 +130,137 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	public synchronized double executeMarketOrder(OrderType type, int quantity) throws LiquidityException {
 		int origQuant = quantity;
 		double totalPrice = 0.0;
-		if (type == OrderType.PURCHASE) {
-			// check for sufficient liquidity
-			if (sellOrderQueues.isEmpty() || askPrice > highestAsk) {
-				throw new LiquidityException(0, 0.0);
-			}
-
+		
+		Set<Map.Entry<Integer,Vector<LimitOrder>>> queueSet = null;
+     	if (type == OrderType.PURCHASE) {
 			// Iterate through limit order queues from askPrice on up
-			for (int salePrice = askPrice; salePrice <= highestAsk; salePrice++) {
-				Vector<LimitOrder> orders = sellOrderQueues.get(salePrice);
-
-				if (orders != null) {
-
-					askPrice = salePrice; // update the askingPrice to reflect
-					// this order
-					if (quantity == 0) {
-						return totalPrice;
-					}
-
-					// iterate through the LimitOrders in the queue for this
-					// price
-					LimitOrder o = null;
-					while (!orders.isEmpty()) {
-						// pop the first one off the queue
-						o = orders.remove(0);
-						int curQuantity = 0;
-						if (o.quantityPending() > quantity) {
-							curQuantity = quantity;
-							orders.add(0, o); // adds the order back in since
-							// this won't exhaust it
-						} else if (o.quantityPending() == quantity) {
-							curQuantity = quantity;
-						} else {
-							curQuantity = quantity - o.quantityPending();
-						}
-
-						// Execute:
-						// Update the LimitOrder
-						o.quantityExecuted.addAndGet(curQuantity);
-						// Update the market order
-						totalPrice += o.pricePerUnit * curQuantity;
-						quantity -= curQuantity;
-					}
-
-					if (orders.isEmpty()) { // remove the orderqueue
-						orders = null;
-						sellOrderQueues.remove(salePrice);
-					} else if (quantity == 0) {
-						return totalPrice;
-					}
-				}
-			}
-			if (quantity != 0) {
-				throw new LiquidityException(origQuant - quantity, totalPrice); // TODO:
-				// add
-				// params
-			}
-		} else // SALE
-		{
-			// check for sufficient liquidity
-			if (buyOrderQueues.isEmpty() || bidPrice < lowestBid) {
-				throw new LiquidityException(0, 0.0); // TODO: add params
-			}
-
+			queueSet = sellOrderQueues.entrySet();
+     	} else { // SELL
 			// Iterate through limit order queues from bidPrice on down
-			for (int salePrice = bidPrice; salePrice >= lowestBid; salePrice--) {
-				Vector<LimitOrder> orders = buyOrderQueues.get(salePrice);
+     		queueSet = buyOrderQueues.entrySet();     		
+     	}
 
-				if (orders != null) {
+     	Iterator<Map.Entry<Integer,Vector<LimitOrder>>> qit = queueSet.iterator();
+     	while (qit.hasNext() && (quantity != 0))
+     	{
+     		Vector<LimitOrder> orders = qit.next().getValue();
 
-					bidPrice = salePrice; // update the bidPrice to reflect
-					// this order
-					if (quantity == 0) {
-						return totalPrice;
-					}
+     		// iterate through the LimitOrders in the queue for this price
+     		LimitOrder o = null;
+     		while (!orders.isEmpty() && (quantity != 0)) {
+     			int curQuantity = 0;
 
-					// iterate through the LimitOrders in the queue for this
-					// price
-					LimitOrder o = null;
-					while (!orders.isEmpty()) {
-						// pop the first one off the queue
-						o = orders.remove(0);
-						int curQuantity = 0;
-						if (o.quantityPending() > quantity) {
-							curQuantity = quantity;
-							orders.add(0, o); // adds the order back in queue
-							// since this won't fully
-							// execute it
-						} else if (o.quantityPending() == quantity) {
-							curQuantity = quantity;
-						} else {
-							curQuantity = quantity - o.quantityPending();
-						}
+     			// pop the first one off the queue
+     			o = orders.remove(0);
 
-						// Execute:
-						// Update the LimitOrder
-						o.quantityExecuted.addAndGet(curQuantity);
-						// Update the market order
-						totalPrice += o.pricePerUnit * curQuantity;
-						quantity -= curQuantity;
-					}
+     			// TODO: ensure this order hasn't expired
+     			
+     			if (o.quantityPending() > quantity) {
+     				// this won't exhaust the limitOrder
+     				curQuantity = quantity;
+     				orders.add(0, o); // adds the order back in since
+     			} else if (o.quantityPending() == quantity) {
+     				curQuantity = quantity;
+     			} else {
+     				curQuantity = quantity - o.quantityPending();
+     			}
 
-					if (orders.isEmpty()) { // remove the orderqueue
-						orders = null;
-						buyOrderQueues.remove(salePrice);
-					} else if (quantity == 0) {
-						return totalPrice;
-					}
-				}
-			}
-			if (quantity != 0) {
-				throw new LiquidityException(origQuant - quantity, totalPrice); // TODO:
-				// add
-				// params
-			}
-
+     			// Execute:
+     			// Update the LimitOrder
+     			o.quantityExecuted.addAndGet(curQuantity);
+     			// Update the market order
+     			totalPrice += o.pricePerUnit * curQuantity;
+     			quantity -= curQuantity;
+     		}
+     		if (orders.isEmpty()) { // remove the orderqueue
+     			orders = null;
+     			qit.remove(); // remove the queue from sellOrderQueues
+     		} 
+     	}		
+		if (quantity != 0) {
+			throw new LiquidityException(origQuant - quantity, totalPrice); 
 		}
 
-		// only get here if the queue is empty and we transacted exactly what we
-		// wanted.
 		return totalPrice;
 	}
 
 	public synchronized double getBidPrice() {
-		return bidPrice / granularity;
+		// the buyqueues key is stored as the negative of the internal price
+		return externalPrice(-buyOrderQueues.firstKey()); 
 	}
 
 	public synchronized double getAskPrice() {
-		return askPrice / granularity;
+		return externalPrice(sellOrderQueues.firstKey());
 	}
 
 	public synchronized double getSpread() {
-		return (askPrice - bidPrice) / granularity;
+		return externalPrice(sellOrderQueues.firstKey() + buyOrderQueues.firstKey());
 	}
 
-	/*
-	 * public synchronized boolean registerGUISeries(XYSeries BuyOrdersSeries,
-	 * XYSeries SellOrdersSeries) { buyOrdersSeries=BuyOrdersSeries;
-	 * sellOrdersSeries=SellOrdersSeries; return true; }
-	 */
-	public synchronized void cleanup() {
+    public synchronized void cleanup() {
 		// do nothing for now
+		//TODO: remove expired limit orders?
+		//TODO: eliminate overlapping limit orders?
 	}
 
+	// returns an array with an entry of the price for each unit of limit order
 	public double[] getBuyOrders() {
-		return null; // not yet implemented
+		Vector<Double> freqVec = new Vector<Double>();
+		
+		Set<Map.Entry<Integer,Vector<LimitOrder>>> queueSet = null;
+    	// Iterate through limit order queues from bidPrice on down
+   		queueSet = buyOrderQueues.entrySet();     		
+
+     	Iterator<Map.Entry<Integer,Vector<LimitOrder>>> qit = queueSet.iterator();
+     	while (qit.hasNext())
+     	{
+     		Map.Entry<Integer,Vector<LimitOrder>> queuePair = qit.next();
+     		double price = externalPrice(-queuePair.getKey());
+     		Vector<LimitOrder> orders = queuePair.getValue();
+     		
+     		//TODO: remove expired
+     		
+     		int totalAtThisPrice = sumOfQuantities(orders);
+     		for (int i = 0; i< totalAtThisPrice; i++) {
+     			freqVec.add(price);
+     		}
+     	}
+		
+     	double[] retArray = new double[freqVec.size()];
+     	for (int i = 0; i<freqVec.size(); i++) {
+     		retArray[i]=freqVec.get(i);
+     	}
+     	return retArray;
 	}
 
+	// returns an array with an entry of the price for each unit of each limit order
 	public double[] getSellOrders() {
-		return null; // not yet implemented
+		Vector<Double> freqVec = new Vector<Double>();
+		
+		Set<Map.Entry<Integer,Vector<LimitOrder>>> queueSet = null;
+		// Iterate through limit order queues from askPrice on up
+		queueSet = sellOrderQueues.entrySet();
+
+     	Iterator<Map.Entry<Integer,Vector<LimitOrder>>> qit = queueSet.iterator();
+     	while (qit.hasNext())
+     	{
+     		Map.Entry<Integer,Vector<LimitOrder>> queuePair = qit.next();
+     		double price = externalPrice(queuePair.getKey());
+     		Vector<LimitOrder> orders = queuePair.getValue();
+
+     		// TODO: remove expired
+     		
+     		int totalAtThisPrice = sumOfQuantities(orders);
+     		for (int i = 0; i< totalAtThisPrice; i++) {
+     			freqVec.add(price);
+     		}
+     	}
+		
+     	double[] retArray = new double[freqVec.size()];
+     	for (int i = 0; i<freqVec.size(); i++) {
+     		retArray[i]=freqVec.get(i);
+     	}
+     	return retArray;
 	}
 
 	protected int sumOfQuantities(Vector<LimitOrder> orders) {
@@ -292,40 +270,27 @@ public class DoubleAuctionOrderBook implements OrderBook {
 		}
 		return sum;
 	}
-
+    
+	protected int internalPrice(double p) {
+    	return (int) (p * granularity);
+    }
+	protected double externalPrice(int internalP) {
+		return ((double)internalP) / granularity; 
+	}
+    
+	
 	protected FinancialModel myWorld;
 
 	// map of limit order queues for each price level (*1000):
-	// a price of 1.234 is stored under 1234
-	protected HashMap<Integer, Vector<LimitOrder>> buyOrderQueues;
-
-	protected HashMap<Integer, Vector<LimitOrder>> sellOrderQueues;
-
-	// used for GUI
-	// protected HashMap< Integer, Integer > buyOrdersOutstanding;
-	// protected HashMap< Integer, Integer > sellOrdersOutstanding;
-
-	// protected XYSeries buyOrdersSeries=null, sellOrdersSeries=null;
-
-	protected int bidPrice = 0, askPrice = 0;
-
-	protected int lowestBid = 0, highestAsk = 0;
-
-	// protected long nextTransactionID;
+	// a price of 1.234 is stored under 1234 (-1234 for buy orders)
+	protected TreeMap<Integer, Vector<LimitOrder>> buyOrderQueues;
+	protected TreeMap<Integer, Vector<LimitOrder>> sellOrderQueues;
 
 	int myID;
 
-	public void setNyWorld(FinancialModel myWorld) {
-		// TODO Auto-generated method stub
-		
+	public synchronized void setMyWorld(FinancialModel myWorld) {
+		this.myWorld = myWorld;
 	}
-
-
-	public void setMyWorld(FinancialModel myWorld) {
-		// TODO Auto-generated method stub
-		
-	}
-
 
 	public double getReturnRate() {
 		// TODO Auto-generated method stub
@@ -335,6 +300,5 @@ public class DoubleAuctionOrderBook implements OrderBook {
 
 	public void setMyID(int a) {
 		this.myID = a;
-		
 	}
 }
