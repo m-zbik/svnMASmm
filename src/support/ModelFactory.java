@@ -7,9 +7,9 @@ import java.util.Properties;
 
 import model.FinancialModel;
 import model.agents.ContPlayer;
+import model.agents.GenericPlayer;
 import model.market.Market;
 import model.market.books.*;
-import model.market.books.OrderBook;
 
 public class ModelFactory {
 
@@ -44,29 +44,48 @@ public class ModelFactory {
 		target.parameterMap.put("lambda", new Double(properties.getProperty("lambda", "10")));
 		target.parameterMap.put("maxT", new Double(properties.getProperty("maxT", "100000")));
 		target.parameterMap.put("numAssets", new Double(properties.getProperty("numAssets", "1")));
-		
+		target.parameterMap.put("mu", new Double(properties.getProperty("mu", "1")));
+		target.parameterMap.put("delta", new Double(properties.getProperty("delta", "1")));
+		target.parameterMap.put("lambda", new Double(properties.getProperty("lambda", "1")));
+
 		target.optionsMap.put("agentClass", properties.getProperty("agentClass", "ContPlayer"));
 		target.optionsMap.put("orderBookClass", properties.getProperty("orderBookClass", "ContBook"));
-		
-		
+
 	}
 
 	public void buildContAgents() {
 
 		// initialize an array list of traders
-		target.agentList = new ArrayList<ContPlayer>();
+		target.agentList = new ArrayList<GenericPlayer>();
 
-		// initialize traders and add them to the list
-		for (int i = 0; i < target.parameterMap.get("N"); i++) {
-			// create new trader
-			ContPlayer tempAgent = new ContPlayer(target, i);
-			// assign a random threshold; values range from 0 to 1
-			tempAgent.threshold = target.random.nextDouble();
-			// add trader to the list
-			target.agentList.add(tempAgent);
-			// schedule agents
-			target.schedule.scheduleRepeating(tempAgent, 1, 1.0);
+		try {
 
+			// initialize traders and add them to the list
+			for (int i = 0; i < target.parameterMap.get("N"); i++) {
+				// create new trader
+
+				GenericPlayer tempAgent = (GenericPlayer) Class.forName("model.agents." + target.optionsMap.get("agentClass")).newInstance();
+
+				tempAgent.myWorld = target;
+
+				tempAgent.id = i;
+
+				// add trader to the list
+				target.agentList.add(tempAgent);
+				// schedule agents
+				target.schedule.scheduleRepeating(tempAgent, 1, 1.0);
+
+			}
+
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		// initialize market agent
@@ -89,8 +108,9 @@ public class ModelFactory {
 
 		for (int a = 0; a < target.parameterMap.get("numAssets"); a++) {
 			target.myMarket.orderBooks.get(a).setMyWorld(target);
+			target.myMarket.orderBooks.get(a).setMyID(a);
 		}
-		
+
 		target.schedule.scheduleRepeating(target.myMarket, 2, 1.0);
 
 	}

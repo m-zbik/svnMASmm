@@ -27,12 +27,15 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	// number of possible transaction prices per cash value
 	// (for 100.0, trades can execute at the level of cents)
 	private final static double granularity = 1000.0;
+	
 	public DoubleAuctionOrderBook() {
-		
+		this.buyOrderQueues = new HashMap<Integer, Vector<LimitOrder>>();
 	}
 	
 
 	public DoubleAuctionOrderBook(FinancialModel myWorld) {
+		super();
+		
 		this.myWorld = myWorld;
 		// this.nextTransactionID=0;
 		this.myID = nextOrderBookID++;
@@ -327,5 +330,11 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	public double getReturnRate() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+
+	public void setMyID(int a) {
+		this.myID = a;
+		
 	}
 }

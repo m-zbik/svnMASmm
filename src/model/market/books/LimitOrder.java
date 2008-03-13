@@ -22,6 +22,7 @@ public class LimitOrder {
 		this.pricePerUnit = price;
 		this.expirationTime = expirationTime;
 		this.asset=asset;
+		this.orderBookID = new AtomicInteger(asset);
 	}
 
 	// Get the status of this LimitOrder

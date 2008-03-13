@@ -13,37 +13,37 @@ import sim.engine.Steppable;
  * Function: trader agent; generates orders and updates thresholds 
  */
 
-public class ContPlayer implements Steppable {
+public class ContPlayer extends GenericPlayer {
 
 	private static final long serialVersionUID = 1L;
 
 	// trader's threshold
 	public double threshold;
 
-	// trader's id
-	int id;
-
-	// instantiate ContModel class in order to access its variables
-	public FinancialModel myWorld;
+	
 
 	public double s_local;
 
 	// constructor
-	public ContPlayer(FinancialModel myWorld, int id) {
-
-		this.myWorld = myWorld;
-		this.id = id;
-		this.s_local =  myWorld.parameterMap.get("s");
+	public ContPlayer() {
 
 	}
 
 	// main logic function; not really used in this case
 	public void step(SimState state) {
 
+		if (state.schedule.getTime() == 0) {
+
+			this.s_local = myWorld.parameterMap.get("s");
+			
+			// assign a random threshold; values range from 0 to 1
+			this.threshold = myWorld.random.nextDouble();
+		}
+
 		if (state.schedule.getTime() > 0) {
 			this.updateThresholds();
 		}
-		
+
 		this.generateOrders();
 
 	}
@@ -51,30 +51,29 @@ public class ContPlayer implements Steppable {
 	// generate an order if trader's threshold is above or below
 	// a market wide parameter epsilon_t
 	public void generateOrders() {
-		
+
 		LimitOrder tempOrder;
 
 		// if epsilon_t is below the negative value of threshold
 		// issue an order to sell
 		if (myWorld.epsilon_t < -1 * this.threshold) {
-			double currentAskPrice = this.myWorld.myMarket.getAskPriceForAsset(0);	
-			tempOrder = new LimitOrder(OrderType.SALE, currentAskPrice, 1, 1,0);
+			double currentAskPrice = this.myWorld.myMarket.getAskPriceForAsset(0);
+			tempOrder = new LimitOrder(OrderType.SALE, currentAskPrice, 1, 1, 0);
 			this.myWorld.myMarket.acceptOrder(tempOrder);
+
 			// if epsilon_t is above the positive value of threshold
 			// issue an order to buy
 		} else if (myWorld.epsilon_t > this.threshold) {
-			
-			double currentBidPrice = this.myWorld.myMarket.getBidPriceForAsset(0);	
-			tempOrder = new LimitOrder(OrderType.PURCHASE, currentBidPrice, 1, 1,0);
+
+			double currentBidPrice = this.myWorld.myMarket.getBidPriceForAsset(0);
+			tempOrder = new LimitOrder(OrderType.PURCHASE, currentBidPrice, 1, 1, 0);
 			this.myWorld.myMarket.acceptOrder(tempOrder);
-			
-			
+
 		} else {
 			// otherwise do nothing
 		}
 
 		// pass the order value to the market agent
-		
 
 	}
 

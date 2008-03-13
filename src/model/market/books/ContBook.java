@@ -103,4 +103,11 @@ public class ContBook implements OrderBook {
 		return 0;
 	}
 
+
+
+	public void setMyID(int a) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

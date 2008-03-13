@@ -62,4 +62,6 @@ public interface OrderBook {
 	public void setMyWorld(FinancialModel myWorld);
 
 	public double getReturnRate();
+
+	public void setMyID(int a);
 }

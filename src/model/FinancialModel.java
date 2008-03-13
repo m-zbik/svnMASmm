@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import model.agents.ContPlayer;
+import model.agents.GenericPlayer;
 import model.market.Market;
 
 import sim.engine.SimState;
@@ -33,7 +34,7 @@ public class FinancialModel extends SimState {
 	public HashMap<String, String> optionsMap = new HashMap<String, String>();
 	
 	// array list of traders
-	public ArrayList<ContPlayer> agentList;
+	public ArrayList<GenericPlayer> agentList;
 	
 	// Market class: calculates excess demand and return rate
 	public Market myMarket;
