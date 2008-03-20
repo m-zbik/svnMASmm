@@ -38,6 +38,10 @@ public class FinancialModelWithUI extends GUIState {
 
 	public GUIReporter myReporter;
 
+	public HistogramGenerator orderHist;
+
+	public JFrame orderHistFrame;
+
 	public double nextUpdate = 0;
 
 	public static void main(String[] args) {
@@ -95,6 +99,20 @@ public class FinancialModelWithUI extends GUIState {
 							}
 							if (temp2Array.length > 0) {
 								returnHist.updateSeries(a, temp2Array, false);
+							}
+						}
+					}
+
+					if (orderHistFrame.isVisible()) {
+						for (int a = 0; a < ((FinancialModel) state).parameterMap.get("numAssets"); a++) {
+							double[] temp2Array = ((FinancialModel) state).myMarket.orderBooks.get(a).getBuyOrders();
+							if (temp2Array.length > 0) {
+								orderHist.updateSeries(2 * a, temp2Array, false);
+							}
+
+							temp2Array = ((FinancialModel) state).myMarket.orderBooks.get(a).getSellOrders();
+							if (temp2Array.length > 0) {
+								orderHist.updateSeries(2 * a + 1, temp2Array, false);
 							}
 						}
 					}
@@ -169,6 +187,22 @@ public class FinancialModelWithUI extends GUIState {
 		returnHistFrame.pack();
 		returnHistFrame.setVisible(false);
 		c.registerFrame(returnHistFrame);
+		
+		orderHist = new HistogramGenerator();
+		orderHist.setTitle("Order books");
+		orderHist.setDomainAxisLabel("Value");
+		orderHist.setRangeAxisLabel("Number of observations");
+		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
+			orderHist.addSeries(fakeArray, 40, "sell orders for asset " + a, null);
+			orderHist.addSeries(fakeArray, 40, "buy orders for asset " + a, null);
+		}
+		orderHist.update();
+		orderHistFrame = orderHist.createFrame(this);
+		orderHistFrame.getContentPane().setLayout(new BorderLayout());
+		orderHistFrame.getContentPane().add(orderHist, BorderLayout.CENTER);
+		orderHistFrame.pack();
+		orderHistFrame.setVisible(false);
+		c.registerFrame(orderHistFrame);
 
 	}
 

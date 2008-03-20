@@ -4,7 +4,9 @@ import java.util.ArrayList;
 
 import model.FinancialModel;
 import model.market.books.LimitOrder;
+import model.market.books.LiquidityException;
 import model.market.books.OrderBook;
+import model.market.books.OrderBook.OrderType;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
@@ -56,6 +58,19 @@ public class Market implements Steppable {
 
 	public double getBidPriceForAsset(int i) {
 		return this.orderBooks.get(i).getBidPrice();
+	}
+	
+	
+	
+
+	public void acceptMarketOrder(OrderType newType, int asset, int amount) {
+		try {
+			this.orderBooks.get(asset).executeMarketOrder(newType, amount);
+		} catch (LiquidityException e) {
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
+		}
+		
 	}
 
 }

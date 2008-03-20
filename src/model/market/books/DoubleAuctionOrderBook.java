@@ -127,8 +127,8 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	// Returns total price of purchasing 'quantity' units if successful.
 	// Otherwise, throws LiquidityException, which contains the number
 	// successfully executed.
-	public synchronized double executeMarketOrder(OrderType type, int quantity) throws LiquidityException {
-		int origQuant = quantity;
+	public synchronized double executeMarketOrder(OrderType type, double quantity) throws LiquidityException {
+		int origQuant = (int) quantity;
 		double totalPrice = 0.0;
 		
 		Set<Map.Entry<Integer,Vector<LimitOrder>>> queueSet = null;
@@ -157,12 +157,12 @@ public class DoubleAuctionOrderBook implements OrderBook {
      			
      			if (o.quantityPending() > quantity) {
      				// this won't exhaust the limitOrder
-     				curQuantity = quantity;
+     				curQuantity = (int) quantity;
      				orders.add(0, o); // adds the order back in since
      			} else if (o.quantityPending() == quantity) {
-     				curQuantity = quantity;
+     				curQuantity = (int) quantity;
      			} else {
-     				curQuantity = quantity - o.quantityPending();
+     				curQuantity = (int) (quantity - o.quantityPending());
      			}
 
      			// Execute:
@@ -178,7 +178,7 @@ public class DoubleAuctionOrderBook implements OrderBook {
      		} 
      	}		
 		if (quantity != 0) {
-			throw new LiquidityException(origQuant - quantity, totalPrice); 
+			throw new LiquidityException((int) (origQuant - quantity), totalPrice); 
 		}
 
 		return totalPrice;

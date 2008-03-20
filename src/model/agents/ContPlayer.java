@@ -58,7 +58,7 @@ public class ContPlayer extends GenericPlayer {
 		// issue an order to sell
 		if (myWorld.epsilon_t < -1 * this.threshold) {
 			double currentAskPrice = this.myWorld.myMarket.getAskPriceForAsset(0);
-			tempOrder = new LimitOrder(OrderType.SALE, currentAskPrice, 1, 1, 0);
+			tempOrder = new LimitOrder(this, OrderType.SALE, 0, currentAskPrice, 1, 1);
 			this.myWorld.myMarket.acceptOrder(tempOrder);
 
 			// if epsilon_t is above the positive value of threshold
@@ -66,7 +66,7 @@ public class ContPlayer extends GenericPlayer {
 		} else if (myWorld.epsilon_t > this.threshold) {
 
 			double currentBidPrice = this.myWorld.myMarket.getBidPriceForAsset(0);
-			tempOrder = new LimitOrder(OrderType.PURCHASE, currentBidPrice, 1, 1, 0);
+			tempOrder = new LimitOrder(this, OrderType.PURCHASE, 0, currentBidPrice, 1, 1);
 			this.myWorld.myMarket.acceptOrder(tempOrder);
 
 		} else {

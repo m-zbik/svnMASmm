@@ -21,7 +21,7 @@ public interface OrderBook {
 	// Returns total transaction value for 'quantity' units, if successful.
 	// Otherwise, throws LiquidityException, which contains the number
 	// successfully executed.
-	public double executeMarketOrder(OrderType type, int quantity) throws LiquidityException;
+	public double executeMarketOrder(OrderType type, double quantity) throws LiquidityException;
 
 	// Place a limit order for a particular price/quantity/expirationTime
 	// returns true if order was successfully placed (-not- executed) and false

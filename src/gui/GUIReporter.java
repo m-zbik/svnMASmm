@@ -49,8 +49,8 @@ public class GUIReporter implements Steppable {
 			priceSeries.add(new XYSeries("Price for asset " + a));
 			returnSeries.add(new XYSeries("Returns for asset " + a));
 			absReturnSeries.add(new XYSeries("Absolute returns for asset " + a));
-			
-			acfAbsReturnsSeries .add(new XYSeries("ACF of absolute returns for asset " + a));
+
+			acfAbsReturnsSeries.add(new XYSeries("ACF of absolute returns for asset " + a));
 			acfReturnsSeries.add(new XYSeries("ACF of returns for asset " + a));
 
 			// maximum item count only needs to be set once
@@ -62,7 +62,7 @@ public class GUIReporter implements Steppable {
 				acfAbsReturnsSeries.get(a).add(i, 0.0);
 				acfReturnsSeries.get(a).add(i, 0.0);
 			}
-			
+
 			priceMemory.add(new Vector<Double>());
 			returnMemory.add(new Vector<Double>());
 		}
@@ -75,7 +75,7 @@ public class GUIReporter implements Steppable {
 
 			for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
 
-				priceMemory.get(a).add(myModel.myMarket.getAskPriceForAsset(a));
+				priceMemory.get(a).add((myModel.myMarket.getAskPriceForAsset(a) + myModel.myMarket.getBidPriceForAsset(a)) / 2);
 				returnMemory.get(a).add(myModel.myMarket.getReturnRateForAsset(a));
 
 			}
