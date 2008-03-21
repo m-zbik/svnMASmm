@@ -4,13 +4,16 @@ import sim.engine.SimState;
 import model.FinancialModel;
 import model.market.books.LimitOrder;
 import model.market.books.OrderBook.OrderType;
+import support.Distributions;
 
 /* Agent that randomly drops a random order at a random orderbook */
 
 public class FarmerPlayer extends GenericPlayer {
-
+    
+	private Distributions randDist;
+	
 	public FarmerPlayer() {
-
+      randDist = new Distributions(myWorld.random);
 	}
 
 	public void step(SimState state) {
@@ -20,7 +23,10 @@ public class FarmerPlayer extends GenericPlayer {
 	}
 
 	private void generateOrders() {
-
+		
+		// TODO: Use this: to decide how many orders to place, if you place 1 order every 10 ticks.
+		// int numOrdersPlaced = randDist.nextPoisson(0.1);
+		
 		double rand = myWorld.random.nextDouble();
 
 		if (rand < 0.5) {
