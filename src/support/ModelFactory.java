@@ -48,7 +48,7 @@ public class ModelFactory {
 		target.parameterMap.put("delta", new Double(properties.getProperty("delta", "1")));
 		target.parameterMap.put("lambda", new Double(properties.getProperty("lambda", "1")));
 		target.parameterMap.put("minPrice", new Double(properties.getProperty("minPrice", "0")));
-		target.parameterMap.put("maxPrice", new Double(properties.getProperty("maxPrice", "1")));
+		target.parameterMap.put("maxPrice", new Double(properties.getProperty("maxPrice", "10")));
 
 		target.optionsMap.put("agentClass", properties.getProperty("agentClass", "ContPlayer"));
 		target.optionsMap.put("orderBookClass", properties.getProperty("orderBookClass", "ContBook"));

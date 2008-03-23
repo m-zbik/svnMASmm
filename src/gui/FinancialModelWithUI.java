@@ -27,6 +27,10 @@ public class FinancialModelWithUI extends GUIState {
 	public TimeSeriesChartGenerator priceChart;
 
 	public JFrame priceFrame;
+	
+	public TimeSeriesChartGenerator returnChart;
+
+	public JFrame returnFrame;
 
 	public TimeSeriesChartGenerator acfChart;
 
@@ -91,6 +95,7 @@ public class FinancialModelWithUI extends GUIState {
 
 					if (returnHistFrame.isVisible()) {
 						for (int a = 0; a < ((FinancialModel) state).parameterMap.get("numAssets"); a++) {
+							
 							Double[] tempArray = new Double[myReporter.returnMemory.get(a).size()];
 							tempArray = myReporter.returnMemory.get(a).toArray(tempArray);
 							double[] temp2Array = new double[myReporter.returnMemory.get(a).size()];
@@ -105,6 +110,9 @@ public class FinancialModelWithUI extends GUIState {
 
 					if (orderHistFrame.isVisible()) {
 						for (int a = 0; a < ((FinancialModel) state).parameterMap.get("numAssets"); a++) {
+							
+							//((FinancialModel) state).myMarket.orderBooks.get(a).cleanup();
+							
 							double[] temp2Array = ((FinancialModel) state).myMarket.orderBooks.get(a).getBuyOrders();
 							if (temp2Array.length > 0) {
 								orderHist.updateSeries(2 * a, temp2Array, false);
@@ -126,6 +134,12 @@ public class FinancialModelWithUI extends GUIState {
 						myReporter.setSeries();
 						priceChart.enable();
 					}
+					
+					if (returnFrame.isVisible()) {
+						returnChart.disable();
+						myReporter.setSeries();
+						returnChart.enable();
+					}
 
 					nextUpdate = nextUpdate + 1;
 				}
@@ -143,19 +157,33 @@ public class FinancialModelWithUI extends GUIState {
 		FinancialModel myModel = (FinancialModel) this.state;
 
 		priceChart = new TimeSeriesChartGenerator();
-		priceChart.setTitle("Price and returns plot");
+		priceChart.setTitle("Prices plot");
 		priceChart.setDomainAxisLabel("Step");
 		priceChart.setRangeAxisLabel("Price");
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
-			priceChart.addSeries(myReporter.priceSeries.get(a), null);
-			priceChart.addSeries(myReporter.returnSeries.get(a), null);
-			priceChart.addSeries(myReporter.absReturnSeries.get(a), null);
+			priceChart.addSeries(myReporter.askPriceSeries.get(a), null);
+			priceChart.addSeries(myReporter.bidPriceSeries.get(a), null);
 		}
 		priceFrame = priceChart.createFrame(this);
 		priceFrame.getContentPane().setLayout(new BorderLayout());
 		priceFrame.getContentPane().add(priceChart, BorderLayout.CENTER);
 		priceFrame.pack();
 		c.registerFrame(priceFrame);
+		
+		
+		returnChart = new TimeSeriesChartGenerator();
+		returnChart.setTitle("Returns plot");
+		returnChart.setDomainAxisLabel("Step");
+		returnChart.setRangeAxisLabel("Return");
+		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
+			returnChart.addSeries(myReporter.returnSeries.get(a), null);
+			returnChart.addSeries(myReporter.absReturnSeries.get(a), null);
+		}
+		returnFrame = returnChart.createFrame(this);
+		returnFrame.getContentPane().setLayout(new BorderLayout());
+		returnFrame.getContentPane().add(returnChart, BorderLayout.CENTER);
+		returnFrame.pack();
+		c.registerFrame(returnFrame);
 
 		acfChart = new TimeSeriesChartGenerator();
 		acfChart.setTitle("Autocorrelation of returns");

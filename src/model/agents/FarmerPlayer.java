@@ -9,24 +9,31 @@ import support.Distributions;
 /* Agent that randomly drops a random order at a random orderbook */
 
 public class FarmerPlayer extends GenericPlayer {
-    
+
 	private Distributions randDist;
-	
+
 	public FarmerPlayer() {
-      randDist = new Distributions(myWorld.random);
+		
 	}
 
 	public void step(SimState state) {
+		
+		if (this.randDist == null ) {
+			randDist = new Distributions(myWorld.random);	
+		}
 
 		this.generateOrders();
+		
+		//double nextActivation = myWorld.schedule.getTime() + 
 
 	}
 
 	private void generateOrders() {
-		
-		// TODO: Use this: to decide how many orders to place, if you place 1 order every 10 ticks.
+
+		// TODO: Use this: to decide how many orders to place, if you place 1
+		// order every 10 ticks.
 		// int numOrdersPlaced = randDist.nextPoisson(0.1);
-		
+
 		double rand = myWorld.random.nextDouble();
 
 		if (rand < 0.5) {
@@ -55,15 +62,18 @@ public class FarmerPlayer extends GenericPlayer {
 			rand = myWorld.random.nextDouble();
 
 			if (rand < 0.5) {
+				
+				// Try to buy shares 
+				
 				newType = OrderType.PURCHASE;
-				newPrice = myWorld.random.nextDouble();
+				newPrice = Math.max(myWorld.myMarket.orderBooks.get(asset).getAskPrice() - myWorld.random.nextDouble(), myWorld.parameterMap.get("minPrice")); 
 
 			} else {
 				newType = OrderType.SALE;
-				newPrice = myWorld.random.nextDouble();
+				newPrice = Math.min(myWorld.myMarket.orderBooks.get(asset).getBidPrice() + myWorld.random.nextDouble(), myWorld.parameterMap.get("maxPrice"));
 			}
 
-			double expirationTime = myWorld.schedule.getTime() - Math.log(myWorld.random.nextDouble());
+			double expirationTime = myWorld.schedule.getTime() + 5;
 			int amount = 1 + myWorld.random.nextInt(10);
 
 			LimitOrder newOrder = new LimitOrder(this, newType, asset, newPrice, amount, expirationTime);

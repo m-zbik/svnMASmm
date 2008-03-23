@@ -15,7 +15,9 @@ public class GUIReporter implements Steppable {
 
 	private static final long serialVersionUID = 1L;
 
-	public ArrayList<XYSeries> priceSeries = new ArrayList<XYSeries>();
+	public ArrayList<XYSeries> bidPriceSeries = new ArrayList<XYSeries>();
+	
+	public ArrayList<XYSeries> askPriceSeries = new ArrayList<XYSeries>();
 
 	public ArrayList<XYSeries> returnSeries = new ArrayList<XYSeries>();
 
@@ -25,7 +27,9 @@ public class GUIReporter implements Steppable {
 
 	public ArrayList<XYSeries> acfReturnsSeries = new ArrayList<XYSeries>();
 
-	public ArrayList<Vector<Double>> priceMemory = new ArrayList<Vector<Double>>();
+	public ArrayList<Vector<Double>> bidPriceMemory = new ArrayList<Vector<Double>>();
+	
+	public ArrayList<Vector<Double>> askPriceMemory = new ArrayList<Vector<Double>>();
 
 	public ArrayList<Vector<Double>> returnMemory = new ArrayList<Vector<Double>>();
 
@@ -46,7 +50,8 @@ public class GUIReporter implements Steppable {
 
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
 
-			priceSeries.add(new XYSeries("Price for asset " + a));
+			bidPriceSeries.add(new XYSeries("Bid price for asset " + a));
+			askPriceSeries.add(new XYSeries("Ask price for asset " + a));
 			returnSeries.add(new XYSeries("Returns for asset " + a));
 			absReturnSeries.add(new XYSeries("Absolute returns for asset " + a));
 
@@ -54,7 +59,8 @@ public class GUIReporter implements Steppable {
 			acfReturnsSeries.add(new XYSeries("ACF of returns for asset " + a));
 
 			// maximum item count only needs to be set once
-			priceSeries.get(a).setMaximumItemCount(NumViewable);
+			bidPriceSeries.get(a).setMaximumItemCount(NumViewable);
+			askPriceSeries.get(a).setMaximumItemCount(NumViewable);
 			returnSeries.get(a).setMaximumItemCount(NumViewable);
 			absReturnSeries.get(a).setMaximumItemCount(NumViewable);
 			// initialize
@@ -63,7 +69,8 @@ public class GUIReporter implements Steppable {
 				acfReturnsSeries.get(a).add(i, 0.0);
 			}
 
-			priceMemory.add(new Vector<Double>());
+			bidPriceMemory.add(new Vector<Double>());
+			askPriceMemory.add(new Vector<Double>());
 			returnMemory.add(new Vector<Double>());
 		}
 
@@ -75,7 +82,8 @@ public class GUIReporter implements Steppable {
 
 			for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
 
-				priceMemory.get(a).add((myModel.myMarket.getAskPriceForAsset(a) + myModel.myMarket.getBidPriceForAsset(a)) / 2);
+				bidPriceMemory.get(a).add((myModel.myMarket.getBidPriceForAsset(a)));
+				askPriceMemory.get(a).add((myModel.myMarket.getAskPriceForAsset(a)));
 				returnMemory.get(a).add(myModel.myMarket.getReturnRateForAsset(a));
 
 			}
@@ -92,7 +100,8 @@ public class GUIReporter implements Steppable {
 
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
 			for (int i = start; i < stop; i++) {
-				priceSeries.get(a).add(i, priceMemory.get(a).get(i));
+				askPriceSeries.get(a).add(i, askPriceMemory.get(a).get(i));
+				bidPriceSeries.get(a).add(i, bidPriceMemory.get(a).get(i));
 				returnSeries.get(a).add(i, returnMemory.get(a).get(i));
 				absReturnSeries.get(a).add(i, Math.abs(returnMemory.get(a).get(i)));
 

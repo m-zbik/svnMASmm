@@ -57,14 +57,14 @@ public class LimitOrder implements Comparable {
 		if (this.type == OrderType.SALE) {
 
 			if (target.pricePerUnit > this.pricePerUnit) {
-				return -1;
-			} else if (target.pricePerUnit < this.pricePerUnit) {
 				return 1;
+			} else if (target.pricePerUnit < this.pricePerUnit) {
+				return -1;
 			} else {
 				if (target.entryTime > this.entryTime) {
-					return -1;
-				} else if (target.entryTime < this.entryTime) {
 					return 1;
+				} else if (target.entryTime < this.entryTime) {
+					return -1;
 				} else {
 					return 0;
 				}
@@ -74,14 +74,14 @@ public class LimitOrder implements Comparable {
 		} else {
 
 			if (target.pricePerUnit < this.pricePerUnit) {
-				return -1;
-			} else if (target.pricePerUnit > this.pricePerUnit) {
 				return 1;
+			} else if (target.pricePerUnit > this.pricePerUnit) {
+				return -1;
 			} else {
 				if (target.entryTime > this.entryTime) {
-					return -1;
-				} else if (target.entryTime < this.entryTime) {
 					return 1;
+				} else if (target.entryTime < this.entryTime) {
+					return -1;
 				} else {
 					return 0;
 				}
