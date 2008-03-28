@@ -52,7 +52,7 @@ public class Market implements Steppable {
 	}
 
 	public void acceptOrder(LimitOrder tempOrder) {
-		this.orderBooks.get(tempOrder.asset).placeLimitOrder(tempOrder);
+		this.orderBooks.get(tempOrder.assetID).placeLimitOrder(tempOrder);
 		
 	}
 

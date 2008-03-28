@@ -98,7 +98,7 @@ public class ContBook implements OrderBook {
 		return false;
 	}
 	
-	public double executeMarketOrder(OrderType type, double quantity) throws LiquidityException {
+	public double executeMarketOrder(OrderType type, int quantity) throws LiquidityException {
 		// TODO Auto-generated method stub
 		return 0;
 	}

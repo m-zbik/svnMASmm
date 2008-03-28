@@ -15,10 +15,6 @@ import model.FinancialModel;
  *         market orders fulfill limit orders. - limit orders don't ever execute
  *         when they're placed
  * 
- * Internally, prices are stored as integers to avoid the imprecision of doubles
- * causing faults
- * 
- * TODO: Handle expiration times
  */
 public class DoubleAuctionOrderBook implements OrderBook {
 
@@ -26,42 +22,34 @@ public class DoubleAuctionOrderBook implements OrderBook {
 
 	// map of limit order queues for each price level (*1000):
 	// a price of 1.234 is stored under 1234 (-1234 for buy orders)
-	protected SortedSet<LimitOrder> buyOrderQueues;
-
-	protected SortedSet<LimitOrder> sellOrderQueues;
+	protected SortedSet<LimitOrder> buyOrders;
+	protected SortedSet<LimitOrder> sellOrders;
 
 	int myID;
 
-	// set initial return rate to zero
 	public double returnRate_t = 0;
-
 	public double price_t = 1;
 
 	public DoubleAuctionOrderBook() {
 		super();
 
-		this.buyOrderQueues = new TreeSet<LimitOrder>();
-		this.sellOrderQueues = new TreeSet<LimitOrder>();
+		this.buyOrders = new TreeSet<LimitOrder>();
+		this.sellOrders = new TreeSet<LimitOrder>();
 	}
 
 	public synchronized boolean placeLimitOrder(LimitOrder order) {
-
-		if (order.quantity <= 0) {
+		if (order.quantity <= 0 || order.assetID != myID) {
 			return false;
 		}
 
-		if (order.type == OrderType.PURCHASE) {
-			// store in the tree as negative price to allow forward iteration.
-
-			buyOrderQueues.add(order);
-
-		} else {
-			// sale order
-			// find the correct queue to place this order on
-
-			sellOrderQueues.add(order);
-		}
+		// give it a new, unique transaction ID within the orderbook
+//		order.transactionID.set(nextTransactionID++);
 		
+		if (order.type == OrderType.PURCHASE) {
+			buyOrders.add(order);
+		} else {
+			sellOrders.add(order);
+		}
 
 		return true;
 	}
@@ -72,13 +60,9 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	public synchronized boolean cancelLimitOrder(LimitOrder order) {
 
 		if (order.type == OrderType.PURCHASE) {
-
-			buyOrderQueues.remove(order);
-
+			buyOrders.remove(order);
 		} else {
-
-			sellOrderQueues.remove(order);
-
+			sellOrders.remove(order);
 		}
 
 		return true;
@@ -88,56 +72,44 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	// Returns total price of purchasing 'quantity' units if successful.
 	// Otherwise, throws LiquidityException, which contains the number
 	// successfully executed.
-	public synchronized double executeMarketOrder(OrderType type, double quantity) throws LiquidityException {
+	public synchronized double executeMarketOrder(OrderType type, int quantity) throws LiquidityException {
 
-		double origQuant = quantity;
-
+		int origQuant = quantity;
 		double totalPrice = 0.0;
-
+        
+		// The operation is the same regardless of whether we're buying or
+		// selling. We just need to choose the right orders to work on.
+		SortedSet<LimitOrder> orders;
 		if (type == OrderType.PURCHASE) {
+			orders=sellOrders;
+		} else {
+			orders=buyOrders;
+		}
 
-			while ((quantity > 0) && (sellOrderQueues.size() > 0)) {
+		while ((quantity > 0) && (!orders.isEmpty())) {
 
-				LimitOrder firstSell = sellOrderQueues.first();
+			LimitOrder lo = orders.first();
 
-				double amountBought = Math.min(quantity, firstSell.quantity);
-				quantity = quantity - amountBought;
-				firstSell.quantity = firstSell.quantity - amountBought;
-				totalPrice = totalPrice + amountBought * firstSell.pricePerUnit;
-				firstSell.reportPartExecution(amountBought);
-
-				// Set order to be removed at next clearMarket execution
-
-				if (firstSell.quantity <= 0) {
-					this.cancelLimitOrder(firstSell);
-				}
-
-				// MarketOrder has been executed
-
+ 			// TODO: ensure this order hasn't expired
+ 			
+			int curQuantity=0;
+ 			if (lo.quantityPending() >= quantity) {
+ 				curQuantity = quantity;
+ 			} else {
+ 				curQuantity = quantity - lo.quantityPending();
+ 			}
+ 			quantity -= curQuantity;
+ 			
+ 			// Execute:
+ 			// Update the LimitOrder by adding to the quantityExecuted
+ 			lo.quantityExecuted.addAndGet(curQuantity);
+ 			// Update the market order
+ 			totalPrice += lo.pricePerUnit * curQuantity;
+ 			
+			if (lo.quantityPending() == 0) {
+				// the limitOrder is fully executed; remove it from the pending orders
+				orders.remove(lo);
 			}
-
-		} else { // SELL
-
-			while ((quantity > 0) && (buyOrderQueues.size() > 0)) {
-
-				LimitOrder firstBuy = buyOrderQueues.first();
-
-				double amountBought = Math.min(quantity, firstBuy.quantity);
-				quantity = quantity - amountBought;
-				firstBuy.quantity = firstBuy.quantity - amountBought;
-				totalPrice = totalPrice + amountBought * firstBuy.pricePerUnit;
-				firstBuy.reportPartExecution(amountBought);
-
-				// Set order to be removed at next clearMarket execution
-
-				if (firstBuy.quantity <= 0) {
-					this.cancelLimitOrder(firstBuy);
-				}
-
-				// MarketOrder has been executed
-
-			}
-
 		}
 
 		if (quantity > 0) {
@@ -149,27 +121,26 @@ public class DoubleAuctionOrderBook implements OrderBook {
 
 	public synchronized double getBidPrice() {
 
-		if (buyOrderQueues.isEmpty()) {
+		if (buyOrders.isEmpty()) {
 			return (myWorld.parameterMap.get("minPrice") + myWorld.parameterMap.get("maxPrice")) / 20;
 		} else {
-			return buyOrderQueues.first().pricePerUnit;
+			return buyOrders.first().pricePerUnit;
 		}
 
 	}
 
 	public synchronized double getAskPrice() {
 
-		if (sellOrderQueues.isEmpty()) {
+		if (sellOrders.isEmpty()) {
 			return (myWorld.parameterMap.get("minPrice") + myWorld.parameterMap.get("maxPrice")) / 20;
 		} else {
-			return sellOrderQueues.first().pricePerUnit;
+			return sellOrders.first().pricePerUnit;
 		}
 
 	}
 
 	public synchronized double getSpread() {
-		return this.getAskPrice() - this.getBidPrice();
-	}
+		return this.getAskPrice() - this.getBidPrice();	}
 
 	public synchronized void cleanup() {
 
@@ -178,46 +149,48 @@ public class DoubleAuctionOrderBook implements OrderBook {
 		HashSet<LimitOrder> ordersToRemove = new HashSet<LimitOrder>();
 		double currentTime = myWorld.schedule.getTime();
 
-		for (LimitOrder l : this.sellOrderQueues) {
-			if ((l.expirationTime <= currentTime) || (l.quantity <= 0)) {
+		for (LimitOrder l : this.sellOrders) {
+			if (l.expirationTime <= currentTime) {
 				ordersToRemove.add(l);
 			}
 		}
-
-		for (LimitOrder l : this.buyOrderQueues) {
-			if ((l.expirationTime <= currentTime) || (l.quantity <= 0)) {
-				ordersToRemove.add(l);
-			}
-		}
-
 		for (LimitOrder l : ordersToRemove) {
-			this.cancelLimitOrder(l);
+			sellOrders.remove(l);
 		}
+		ordersToRemove.clear();
+
+		for (LimitOrder l : this.buyOrders) {
+			if (l.expirationTime <= currentTime) {
+				ordersToRemove.add(l);
+			}
+		}
+		for (LimitOrder l : ordersToRemove) {
+			buyOrders.remove(l);
+		}
+
 
 		/* Clean up negative spreads by trading overlapping LimitOrders */
+		while ((this.getSpread() < 0.0) && (buyOrders.size() > 0) && (sellOrders.size() > 0)) {
 
-		while ((this.getSpread() > 0) && (buyOrderQueues.size() > 0) && (sellOrderQueues.size() > 0)) {
+			LimitOrder firstBuy = buyOrders.first();
+			LimitOrder firstSell = sellOrders.first();
 
-			LimitOrder firstBuy = buyOrderQueues.first();
-			LimitOrder firstSell = sellOrderQueues.first();
+			int curQuantity = Math.min(firstBuy.quantityPending(), firstSell.quantityPending());
+			firstBuy.quantityExecuted.addAndGet(curQuantity);
+			firstSell.quantityExecuted.addAndGet(curQuantity);
+			// NB: Any difference in prices is profit for the exchange :)
 
-			double amountBought = Math.min(firstBuy.quantity, firstSell.quantity);
-
-			firstBuy.quantity = firstBuy.quantity - amountBought;
-			firstSell.quantity = firstSell.quantity - amountBought;
-
-			if (firstBuy.quantity <= 0) {
-				buyOrderQueues.remove(firstBuy);
+			if (firstBuy.quantity == 0) {
+				buyOrders.remove(firstBuy);
 			}
 
-			if (firstSell.quantity <= 0) {
-				sellOrderQueues.remove(firstSell);
+			if (firstSell.quantity == 0) {
+				sellOrders.remove(firstSell);
 			}
 
 		}
 
 		/* Calculate return rate */
-
 		double newPrice_t = (getAskPrice() + getBidPrice()) / 2;
 		returnRate_t = Math.log(newPrice_t / price_t);
 		price_t = newPrice_t;
@@ -231,13 +204,15 @@ public class DoubleAuctionOrderBook implements OrderBook {
 		double min = myWorld.parameterMap.get("minPrice");
 		double max = myWorld.parameterMap.get("maxPrice");
 
+		// add limits to get the scale right
 		freqVec.add(min);
-		freqVec.add(max);
+	    freqVec.add(max);
 
 		// Iterate through limit order queues from askPrice on up
-		for (LimitOrder l : buyOrderQueues) {
+		for (LimitOrder l : buyOrders) {
 
-			for (int i = 0; i < l.quantity; i++) {
+			// theoretically this should be quantityPending
+			for (int i = 0; i < l.quantity; i++) { 
 				freqVec.add(Math.min(Math.max(min, l.pricePerUnit), max));
 			}
 
@@ -247,7 +222,8 @@ public class DoubleAuctionOrderBook implements OrderBook {
 		for (int i = 0; i < freqVec.size(); i++) {
 			retArray[i] = freqVec.get(i);
 		}
-		return retArray;
+
+    	return retArray;
 	}
 
 	// returns an array with an entry of the price for each unit of each limit
@@ -258,12 +234,14 @@ public class DoubleAuctionOrderBook implements OrderBook {
 		double min = myWorld.parameterMap.get("minPrice");
 		double max = myWorld.parameterMap.get("maxPrice");
 
+		// add limits to get the scale right
 		freqVec.add(min);
-		freqVec.add(max);
-
+	    freqVec.add(max);
+		
 		// Iterate through limit order queues from askPrice on up
-		for (LimitOrder l : sellOrderQueues) {
+		for (LimitOrder l : sellOrders) {
 
+			// theoretically this should be quantityPending
 			for (int i = 0; i < l.quantity; i++) {
 				freqVec.add(Math.min(Math.max(min, l.pricePerUnit), max));
 			}

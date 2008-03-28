@@ -36,7 +36,7 @@ public class FarmerPlayer extends GenericPlayer {
 
 		double rand = myWorld.random.nextDouble();
 
-		if (rand < 0.5) {
+		if (rand < 0.45) {
 
 			// Drop market order
 
@@ -48,7 +48,7 @@ public class FarmerPlayer extends GenericPlayer {
 			} else {
 				newType = OrderType.SALE;
 			}
-			int amount = 1 + myWorld.random.nextInt(10);
+			int amount = 1;// + myWorld.random.nextInt(10);
 			myWorld.myMarket.acceptMarketOrder(newType, asset, amount);
 
 		} else {
@@ -60,21 +60,24 @@ public class FarmerPlayer extends GenericPlayer {
 			int asset = myWorld.random.nextInt(myWorld.myMarket.orderBooks.size());
 
 			rand = myWorld.random.nextDouble();
-
+            
+			// just made this up.. needs to be adjusted ala Farmer
+			double offset = 2*myWorld.random.nextDouble();
+			//Math.abs(myWorld.random.nextGaussian());
+			
 			if (rand < 0.5) {
 				
 				// Try to buy shares 
-				
 				newType = OrderType.PURCHASE;
-				newPrice = Math.max(myWorld.myMarket.orderBooks.get(asset).getAskPrice() - myWorld.random.nextDouble(), myWorld.parameterMap.get("minPrice")); 
+				newPrice = Math.max(myWorld.myMarket.orderBooks.get(asset).getAskPrice() - offset, myWorld.parameterMap.get("minPrice")); 
 
 			} else {
 				newType = OrderType.SALE;
-				newPrice = Math.min(myWorld.myMarket.orderBooks.get(asset).getBidPrice() + myWorld.random.nextDouble(), myWorld.parameterMap.get("maxPrice"));
+				newPrice = Math.min(myWorld.myMarket.orderBooks.get(asset).getBidPrice() + offset, myWorld.parameterMap.get("maxPrice"));
 			}
 
-			double expirationTime = myWorld.schedule.getTime() + 5;
-			int amount = 1 + myWorld.random.nextInt(10);
+			double expirationTime = myWorld.schedule.getTime() + 10.0;
+			int amount = 1;// + myWorld.random.nextInt(10);
 
 			LimitOrder newOrder = new LimitOrder(this, newType, asset, newPrice, amount, expirationTime);
 
