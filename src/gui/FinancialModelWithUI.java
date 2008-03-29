@@ -64,7 +64,7 @@ public class FinancialModelWithUI extends GUIState {
 	}
 
 	public static String getName() {
-		return "ContModel Simulation";
+		return "Financial Market Simulation";
 	}
 
 	public Object getSimulationInspectedObject() {
@@ -161,8 +161,8 @@ public class FinancialModelWithUI extends GUIState {
 		priceChart.setDomainAxisLabel("Step");
 		priceChart.setRangeAxisLabel("Price");
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
-			priceChart.addSeries(myReporter.askPriceSeries.get(a), null);
 			priceChart.addSeries(myReporter.bidPriceSeries.get(a), null);
+			priceChart.addSeries(myReporter.askPriceSeries.get(a), null);
 		}
 		priceFrame = priceChart.createFrame(this);
 		priceFrame.getContentPane().setLayout(new BorderLayout());
@@ -221,8 +221,8 @@ public class FinancialModelWithUI extends GUIState {
 		orderHist.setDomainAxisLabel("Value");
 		orderHist.setRangeAxisLabel("Number of observations");
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
-			orderHist.addSeries(fakeArray, 40, "sell orders for asset " + a, null);
-			orderHist.addSeries(fakeArray, 40, "buy orders for asset " + a, null);
+			orderHist.addSeries(fakeArray, 150, "sell orders for asset " + a, null);
+			orderHist.addSeries(fakeArray, 150, "buy orders for asset " + a, null);
 		}
 		orderHist.update();
 		orderHistFrame = orderHist.createFrame(this);
@@ -236,7 +236,6 @@ public class FinancialModelWithUI extends GUIState {
 
 	public void quit() {
 		super.quit();
-
 	}
 
 }

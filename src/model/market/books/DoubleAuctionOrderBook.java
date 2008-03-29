@@ -20,8 +20,6 @@ public class DoubleAuctionOrderBook implements OrderBook {
 
 	protected FinancialModel myWorld;
 
-	// map of limit order queues for each price level (*1000):
-	// a price of 1.234 is stored under 1234 (-1234 for buy orders)
 	protected SortedSet<LimitOrder> buyOrders;
 	protected SortedSet<LimitOrder> sellOrders;
 
@@ -59,6 +57,7 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	// Returns false otherwise; final status can be found in order.
 	public synchronized boolean cancelLimitOrder(LimitOrder order) {
 
+		order.cancelled.set(true);
 		if (order.type == OrderType.PURCHASE) {
 			buyOrders.remove(order);
 		} else {
@@ -154,9 +153,7 @@ public class DoubleAuctionOrderBook implements OrderBook {
 				ordersToRemove.add(l);
 			}
 		}
-		for (LimitOrder l : ordersToRemove) {
-			sellOrders.remove(l);
-		}
+	    sellOrders.removeAll(ordersToRemove);
 		ordersToRemove.clear();
 
 		for (LimitOrder l : this.buyOrders) {
@@ -164,13 +161,11 @@ public class DoubleAuctionOrderBook implements OrderBook {
 				ordersToRemove.add(l);
 			}
 		}
-		for (LimitOrder l : ordersToRemove) {
-			buyOrders.remove(l);
-		}
+		buyOrders.removeAll(ordersToRemove);
 
 
 		/* Clean up negative spreads by trading overlapping LimitOrders */
-		while ((this.getSpread() < 0.0) && (buyOrders.size() > 0) && (sellOrders.size() > 0)) {
+		while ((this.getSpread() <= 0.0) && (buyOrders.size() > 0) && (sellOrders.size() > 0)) {
 
 			LimitOrder firstBuy = buyOrders.first();
 			LimitOrder firstSell = sellOrders.first();
@@ -180,11 +175,11 @@ public class DoubleAuctionOrderBook implements OrderBook {
 			firstSell.quantityExecuted.addAndGet(curQuantity);
 			// NB: Any difference in prices is profit for the exchange :)
 
-			if (firstBuy.quantity == 0) {
+			if (firstBuy.quantityPending() == 0) {
 				buyOrders.remove(firstBuy);
 			}
 
-			if (firstSell.quantity == 0) {
+			if (firstSell.quantityPending() == 0) {
 				sellOrders.remove(firstSell);
 			}
 

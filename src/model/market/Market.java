@@ -48,27 +48,29 @@ public class Market implements Steppable {
 	}
 
 	public double getAskPriceForAsset(int i) {
-		return this.orderBooks.get(i).getAskPrice();
+		return orderBooks.get(i).getAskPrice();
 	}
 
-	public void acceptOrder(LimitOrder tempOrder) {
-		this.orderBooks.get(tempOrder.assetID).placeLimitOrder(tempOrder);
-		
+	public boolean acceptOrder(LimitOrder tempOrder) {
+		return orderBooks.get(tempOrder.assetID).placeLimitOrder(tempOrder);		
 	}
 
+	public boolean cancelOrder(LimitOrder tempOrder) {
+		return orderBooks.get(tempOrder.assetID).cancelLimitOrder(tempOrder);		
+	}
+	
+	
 	public double getBidPriceForAsset(int i) {
-		return this.orderBooks.get(i).getBidPrice();
+		return orderBooks.get(i).getBidPrice();
 	}
 	
-	
-	
-
 	public void acceptMarketOrder(OrderType newType, int asset, int amount) {
 		try {
 			this.orderBooks.get(asset).executeMarketOrder(newType, amount);
 		} catch (LiquidityException e) {
 			// TODO Auto-generated catch block
-			// e.printStackTrace();
+			// TODO: this should be left for the caller to catch
+			 e.printStackTrace();
 		}
 		
 	}

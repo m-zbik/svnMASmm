@@ -3,7 +3,7 @@ package model.market.books;
 import model.agents.GenericPlayer;
 import model.market.books.OrderBook.OrderType;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LimitOrder implements Comparable {
 
@@ -14,16 +14,17 @@ public class LimitOrder implements Comparable {
 	final public double pricePerUnit;
 	final public long entryTime;        // schedule step
 	final public double expirationTime; // in schedule time (!=steps)
+	final public GenericPlayer investor;
     
-	// This variables are modified by the orderbook as the order is executed.
+	// These variables are modified by the orderbook as the order is executed.
 	public AtomicInteger quantityExecuted;
+	public AtomicBoolean cancelled;
 
 	static public enum LimitStatus {
 		PENDING, // Status while not expired or fully executed
-		EXPIRED, // Expired, not executed
-		PARTIALLY_EXECUTED, // Expired, some but not all units executed
-		FULLY_EXECUTED
-		// All units executed
+		EXPIRED, // Expired or Cancelled. No units executed.
+		PARTIALLY_EXECUTED, // Expired or cancelled, some but not all units executed
+		FULLY_EXECUTED	// All units executed
 	};
 
 	public LimitOrder(GenericPlayer investor, OrderType type, int asset, double price, int quantity, double expirationTime) 
@@ -34,18 +35,20 @@ public class LimitOrder implements Comparable {
 		this.pricePerUnit = price;
 		this.expirationTime = expirationTime;
 		this.entryTime = investor.myWorld.schedule.getSteps();
+		this.investor = investor;
 		this.quantityExecuted = new AtomicInteger();
 		this.quantityExecuted.set(0);
-		
-		// TODO remove asset param
+		this.cancelled = new AtomicBoolean();
+		this.cancelled.set(false);
 	}
 
 	// Get the status of this LimitOrder
-	public LimitStatus getStatus(double timeNow) {
+	public LimitStatus getStatus() {
+		double timeNow = investor.myWorld.schedule.getTime();
 		int currentQuantityExecuted = quantityExecuted.get();
 		if (quantity == currentQuantityExecuted) {
 			return LimitStatus.FULLY_EXECUTED;
-		} else if (timeNow > expirationTime) {
+		} else if (timeNow > expirationTime || cancelled.get()) {
 			if (currentQuantityExecuted != 0) {
 				return LimitStatus.PARTIALLY_EXECUTED;
 			} else {

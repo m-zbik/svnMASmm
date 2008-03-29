@@ -49,8 +49,10 @@ public class ModelFactory {
 		target.parameterMap.put("lambda", new Double(properties.getProperty("lambda", "1")));
 		target.parameterMap.put("minPrice", new Double(properties.getProperty("minPrice", "0")));
 		target.parameterMap.put("maxPrice", new Double(properties.getProperty("maxPrice", "10")));
-
-		target.optionsMap.put("agentClass", properties.getProperty("agentClass", "ContPlayer"));
+		target.parameterMap.put("agentClass1Prob", new Double(properties.getProperty("agentClass1Prob", "1.0")));		
+		
+		target.optionsMap.put("agentClass1", properties.getProperty("agentClass1", "ContPlayer"));
+		target.optionsMap.put("agentClass2", properties.getProperty("agentClass2", "ContPlayer"));
 		target.optionsMap.put("orderBookClass", properties.getProperty("orderBookClass", "ContBook"));
 
 	}
@@ -63,10 +65,16 @@ public class ModelFactory {
 		try {
 
 			// initialize traders and add them to the list
+			double p1 = target.parameterMap.get("agentClass1Prob");
 			for (int i = 0; i < target.parameterMap.get("N"); i++) {
 				// create new trader
-
-				GenericPlayer tempAgent = (GenericPlayer) Class.forName("model.agents." + target.optionsMap.get("agentClass")).newInstance();
+				GenericPlayer tempAgent = null;
+				if (target.random.nextBoolean(p1)) {
+					tempAgent = (GenericPlayer) Class.forName("model.agents." + target.optionsMap.get("agentClass1")).newInstance();
+				}
+				else { //agentClass2
+					tempAgent = (GenericPlayer) Class.forName("model.agents." + target.optionsMap.get("agentClass2")).newInstance();
+				}				
 
 				tempAgent.myWorld = target;
 				tempAgent.id = i;
@@ -75,7 +83,6 @@ public class ModelFactory {
 				target.agentList.add(tempAgent);
 				// schedule agents
 				target.schedule.scheduleRepeating(tempAgent, 1, 1.0);
-
 			}
 
 		} catch (InstantiationException e) {
