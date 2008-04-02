@@ -25,7 +25,7 @@ public class ContBook implements OrderBook {
 	public void cleanup() {
 		// calculate return rate; the excess demand is already known
 		// as it is called by agents during order generation phase
-		returnRate_t = this.priceImpact(excessDemand / myWorld.parameterMap.get("N"));
+		returnRate_t = this.priceImpact(excessDemand / myWorld.agentList.size());
 		// calculate new price
 		price_t = price_t * Math.exp(returnRate_t);
 		// clear out excess demand parameter

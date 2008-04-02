@@ -10,20 +10,15 @@ import support.Distributions;
 public class FarmerImpatientPlayer extends GenericPlayer {
 
 	private Distributions randDist;
-	
-	// TODO: Parameterize me:
-	private double mu=0.7; // Poisson rate: ordered placed per step
-	private int sigma = 1; // order size
 
 	public FarmerImpatientPlayer() {
-		
+
 	}
 
-	public void step(SimState state) 
-	{
+	public void step(SimState state) {
 
-		if (this.randDist == null ) {
-			randDist = new Distributions(myWorld.random);	
+		if (this.randDist == null) {
+			randDist = new Distributions(myWorld.random);
 		}
 
 		this.generateOrders();
@@ -32,20 +27,20 @@ public class FarmerImpatientPlayer extends GenericPlayer {
 
 	private void generateOrders() {
 
-		int ordersPlaced = randDist.nextPoisson(mu);
+		int ordersPlaced = 1 + randDist.nextPoisson(myWorld.parameterMap.get("mu"));
 
-		for (int i=0; i<ordersPlaced; i++) {
+		for (int i = 0; i < ordersPlaced; i++) {
 			OrderType orderType;
-		    int asset = myWorld.random.nextInt(myWorld.myMarket.orderBooks.size());
-		    if (myWorld.random.nextBoolean(0.5)) {
-    			orderType = OrderType.PURCHASE;
+			int asset = myWorld.random.nextInt(myWorld.myMarket.orderBooks.size());
+			if (myWorld.random.nextBoolean(0.5)) {
+				orderType = OrderType.PURCHASE;
 			} else {
 				orderType = OrderType.SALE;
 			}
-			
-		    myWorld.myMarket.acceptMarketOrder(orderType, asset, sigma);
-		    // TODO Catch exceptions, manage wealth
-		}	
+
+			myWorld.myMarket.acceptMarketOrder(orderType, asset, ordersPlaced);
+			// TODO Catch exceptions, manage wealth
+		}
 
 	}
 
