@@ -47,6 +47,11 @@ public class Market implements Steppable {
 		return this.orderBooks.get(i).getReturnRate();
 	}
 
+	public OrderBook getOrderBookForAsset(int i) {
+		return orderBooks.get(i);
+	}
+
+	
 	public double getAskPriceForAsset(int i) {
 		return orderBooks.get(i).getAskPrice();
 	}

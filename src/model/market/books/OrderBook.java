@@ -56,12 +56,14 @@ public interface OrderBook {
 	// The current best (highest) price offered by buyers
 	public double getBidPrice();
 
-	// The gap between the best price
+	// The gap between the best price ask and bid
 	public double getSpread();
+	
+	// The return on the asset over the last 'tick'.
+	// Different orderbooks calculate it differently
+	public double getReturnRate();
 
 	public void setMyWorld(FinancialModel myWorld);
-
-	public double getReturnRate();
 
 	public void setMyID(int a);
 }

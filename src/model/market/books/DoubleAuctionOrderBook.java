@@ -23,10 +23,14 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	protected SortedSet<LimitOrder> buyOrders;
 	protected SortedSet<LimitOrder> sellOrders;
 
-	int myID;
+	protected int myID;
 
 	public double returnRate_t = 0;
 	public double price_t = 1;
+	
+	// set to true if price as stored in the order book are the log of actual price;
+	// this implies negative prices are perfectly acceptable
+	public boolean logPricing = false;
 
 	public DoubleAuctionOrderBook() {
 		super();
@@ -65,14 +69,13 @@ public class DoubleAuctionOrderBook implements OrderBook {
 		}
 
 		return true;
-
 	}
 
 	// Returns total price of purchasing 'quantity' units if successful.
 	// Otherwise, throws LiquidityException, which contains the number
 	// successfully executed.
 	public synchronized double executeMarketOrder(OrderType type, int quantity) throws LiquidityException {
-
+		double currentTime = myWorld.schedule.getTime();
 		int origQuant = quantity;
 		double totalPrice = 0.0;
         
@@ -89,7 +92,10 @@ public class DoubleAuctionOrderBook implements OrderBook {
 
 			LimitOrder lo = orders.first();
 
- 			// TODO: ensure this order hasn't expired
+ 			// ensure this order hasn't expired
+			if (lo.expirationTime < currentTime) {
+				continue;
+			}
  			
 			int curQuantity=0;
  			if (lo.quantityPending() >= quantity) {
@@ -121,7 +127,8 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	public synchronized double getBidPrice() {
 
 		if (buyOrders.isEmpty()) {
-			return (myWorld.parameterMap.get("minPrice") + myWorld.parameterMap.get("maxPrice")) / 20;
+			// TODO: this should probably change to price_t
+			return myWorld.parameterMap.get("initialPrice");
 		} else {
 			return buyOrders.first().pricePerUnit;
 		}
@@ -131,7 +138,8 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	public synchronized double getAskPrice() {
 
 		if (sellOrders.isEmpty()) {
-			return (myWorld.parameterMap.get("minPrice") + myWorld.parameterMap.get("maxPrice")) / 20;
+			// TODO: this should probably change to price_t
+			return myWorld.parameterMap.get("initialPrice");
 		} else {
 			return sellOrders.first().pricePerUnit;
 		}
@@ -139,7 +147,8 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	}
 
 	public synchronized double getSpread() {
-		return this.getAskPrice() - this.getBidPrice();	}
+		return this.getAskPrice() - this.getBidPrice();	
+	}
 
 	public synchronized void cleanup() {
 
@@ -187,28 +196,27 @@ public class DoubleAuctionOrderBook implements OrderBook {
 
 		/* Calculate return rate */
 		double newPrice_t = (getAskPrice() + getBidPrice()) / 2;
-		returnRate_t = Math.log(newPrice_t / price_t);
+		if (logPricing) {
+			returnRate_t = newPrice_t - price_t;
+		} else {
+			// note we must be careful here to use this only 
+			// when price_t cannot be 0, and the ratio can only be positive.
+			returnRate_t = Math.log(newPrice_t / price_t);
+		}
+		  
 		price_t = newPrice_t;
-
 	}
 
 	// returns an array with an entry of the price for each unit of limit order
 	public double[] getBuyOrders() {
 		Vector<Double> freqVec = new Vector<Double>();
 
-		double min = myWorld.parameterMap.get("minPrice");
-		double max = myWorld.parameterMap.get("maxPrice");
-
-		// add limits to get the scale right
-		freqVec.add(min);
-	    freqVec.add(max);
-
 		// Iterate through limit order queues from askPrice on up
 		for (LimitOrder l : buyOrders) {
 
 			// theoretically this should be quantityPending
 			for (int i = 0; i < l.quantity; i++) { 
-				freqVec.add(Math.min(Math.max(min, l.pricePerUnit), max));
+				freqVec.add(l.pricePerUnit);
 			}
 
 		}
@@ -226,19 +234,12 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	public double[] getSellOrders() {
 		Vector<Double> freqVec = new Vector<Double>();
 
-		double min = myWorld.parameterMap.get("minPrice");
-		double max = myWorld.parameterMap.get("maxPrice");
-
-		// add limits to get the scale right
-		freqVec.add(min);
-	    freqVec.add(max);
-		
 		// Iterate through limit order queues from askPrice on up
 		for (LimitOrder l : sellOrders) {
 
 			// theoretically this should be quantityPending
 			for (int i = 0; i < l.quantity; i++) {
-				freqVec.add(Math.min(Math.max(min, l.pricePerUnit), max));
+				freqVec.add(l.pricePerUnit);
 			}
 
 		}
@@ -252,10 +253,18 @@ public class DoubleAuctionOrderBook implements OrderBook {
 
 	public synchronized void setMyWorld(FinancialModel myWorld) {
 		this.myWorld = myWorld;
+		price_t=myWorld.parameterMap.get("initialPrice");
+		if (this.myWorld.optionsMap.get("orderBookOptions").equalsIgnoreCase("logPricing")) {
+			logPricing=true;
+		}
 	}
 
 	public double getReturnRate() {
-		return this.returnRate_t;
+			return returnRate_t;
+	}
+	
+	public double getTickPrice() {
+		return price_t;
 	}
 
 	public void setMyID(int a) {

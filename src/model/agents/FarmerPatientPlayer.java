@@ -8,14 +8,15 @@ import support.Distributions;
 import java.util.ArrayList;
 
 /* Agent that places limit orders according to Farmer's Model */
+
+// NOTE: All prices in this model are LOG prices
 public class FarmerPatientPlayer extends GenericPlayer {
 
-	private Distributions randDist;
+	private Distributions randDist=null;
 
-	// TODO: Parameterize me:
-	private double alpha=0.7; // Poisson rate: orders placed per step
-	private double delta=0.02; // Poisson rate: orders cancelled per step	
-	private int sigma = 1; // order size
+	private double alpha; // Poisson rate: orders placed per step
+	private double delta; // Poisson rate: orders cancelled per step	
+	private int sigma; // order size (constant)
 	
 	ArrayList<LimitOrder> myOrders;
 	
@@ -23,17 +24,26 @@ public class FarmerPatientPlayer extends GenericPlayer {
 		myOrders = new ArrayList<LimitOrder>();
 	}
 
+	public void setup(int i, FinancialModel target) {
+		// do initialization
+		this.myWorld = target;
+		this.id = i;
+
+		randDist = new Distributions(myWorld.random);
+		alpha=myWorld.parameterMap.get("Farmer_alpha");
+		delta=myWorld.parameterMap.get("Farmer_delta");
+		sigma=myWorld.parameterMap.get("Farmer_sigma").intValue();
+
+		target.schedule.scheduleRepeating(0.0, 1, this, 1.0);
+	}
+	
+	
 	public void step(SimState state) {
 		
-		if (this.randDist == null ) {
-			randDist = new Distributions(myWorld.random);	
-		}
-
 		this.cancelOldOrders();
 		this.generateOrders();
-
 		this.manageOrderExecution();
-		
+	
 	}
 
 	private void generateOrders() {
@@ -43,40 +53,29 @@ public class FarmerPatientPlayer extends GenericPlayer {
         for (int i=0; i<numOrdersPlaced; i++) {
         	
 			OrderType newType;
-			double price;
+			double price=0.0;
 			int asset = myWorld.random.nextInt(myWorld.myMarket.orderBooks.size());
 
-			// TODO: this is totally arbitrary... do something better
-			double sd = myWorld.parameterMap.get("maxPrice") - myWorld.parameterMap.get("minPrice");
-			sd /= 20.0; // std dev is 1/20 of min-max dist
-			
 			if (myWorld.random.nextBoolean(0.5)) {
 				// Make a purchase limit order 
 				newType = OrderType.PURCHASE;
 
 				double ask = myWorld.myMarket.orderBooks.get(asset).getAskPrice();
-				// pick a price from a uniform distribution in minprice<p<ask 
-				double range = ask - myWorld.parameterMap.get("minPrice");
-				double offset = range*myWorld.random.nextDouble();
+				// Exponential distribution: Log prices at "uniform intensity"
+				double offset = randDist.nextExponential(0.9);
 
-				// pick a price from a folded normal distribution
-//				double offset = sd*Math.abs(myWorld.random.nextGaussian()+0.2);
+				price=ask-Math.log(offset+1.0);
 
-                price = Math.max(ask - offset, myWorld.parameterMap.get("minPrice"));
 			} else {
 				// Make a sale limit order
 				newType = OrderType.SALE;
 	
 		 		double bid = myWorld.myMarket.orderBooks.get(asset).getBidPrice();
-				// pick a price from a uniform distribution in bid<p<maxprice 
-				double range = myWorld.parameterMap.get("maxPrice") - bid;
-				double offset = range*myWorld.random.nextDouble();
+				// Exponential distribution: Log prices at "uniform intensity"
+		 		double offset = randDist.nextExponential(0.9);
 
-		 		// pick a price from a folded normal distribution
-//				double offset = sd*Math.abs(myWorld.random.nextGaussian()+0.2);
-
-		 		price = Math.min(bid + offset, myWorld.parameterMap.get("maxPrice")); 
-			}
+		 		price=bid+Math.log(offset+1.0);
+		 	}
 	
 			double expirationTime = myWorld.schedule.getTime() + 10000.0;
 			LimitOrder newOrder = new LimitOrder(this, newType, asset, price, sigma/*quantity*/, expirationTime);
@@ -91,8 +90,11 @@ public class FarmerPatientPlayer extends GenericPlayer {
 	private void cancelOldOrders() {
 		
 		if (myOrders.isEmpty()) return;
-		
-		int numOrdersCancelled = randDist.nextPoisson(alpha*myOrders.size());
+        // find how many orders to cancel according to a poisson process
+		int numOrdersCancelled=0;
+		for (int i=0; i<myOrders.size(); i++) {
+			numOrdersCancelled += randDist.nextPoisson(delta);
+		}
 		
 		for (int i=0; i<numOrdersCancelled && !myOrders.isEmpty(); i++) {
 			int indexToCancel = myWorld.random.nextInt(myOrders.size());
@@ -100,6 +102,7 @@ public class FarmerPatientPlayer extends GenericPlayer {
 
 			if (myWorld.myMarket.cancelOrder(lo)) {
 				myOrders.remove(indexToCancel);
+				// TODO: Track earnings/losses
 			} // TODO else?			
 		}
 		
@@ -117,6 +120,5 @@ public class FarmerPatientPlayer extends GenericPlayer {
 		}
 		myOrders.removeAll(ordersToRemove);
 	}
-	
 	
 }

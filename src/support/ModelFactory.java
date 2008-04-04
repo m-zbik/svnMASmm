@@ -41,23 +41,24 @@ public class ModelFactory {
 		} catch (IOException e) {
 		}
 
-		target.parameterMap.put("s", new Double(properties.getProperty("s", "0.1")));
 		target.parameterMap.put("D", new Double(properties.getProperty("D", "2")));
-		target.parameterMap.put("lambda", new Double(properties.getProperty("lambda", "10")));
 		target.parameterMap.put("maxT", new Double(properties.getProperty("maxT", "100000")));
 		target.parameterMap.put("numAssets", new Double(properties.getProperty("numAssets", "1")));
-		target.parameterMap.put("mu", new Double(properties.getProperty("mu", "1")));
-		target.parameterMap.put("delta", new Double(properties.getProperty("delta", "1")));
-		target.parameterMap.put("lambda", new Double(properties.getProperty("lambda", "1")));
-		target.parameterMap.put("minPrice", new Double(properties.getProperty("minPrice", "0")));
-		target.parameterMap.put("maxPrice", new Double(properties.getProperty("maxPrice", "10")));		
+		target.parameterMap.put("initialPrice", new Double(properties.getProperty("initialPrice", "10")));
+		target.parameterMap.put("Cont_s", new Double(properties.getProperty("s", "0.1")));
+		target.parameterMap.put("Cont_lambda", new Double(properties.getProperty("lambda", "10")));
+		target.parameterMap.put("Farmer_alpha", new Double(properties.getProperty("Farmer_alpha", "0.65")));
+		target.parameterMap.put("Farmer_delta", new Double(properties.getProperty("Farmer_delta", ".01")));
+		target.parameterMap.put("Farmer_mu", new Double(properties.getProperty("Farmer_mu", "0.5")));
+		target.parameterMap.put("Farmer_sigma", new Double(properties.getProperty("Farmer_sigma", "1")));
 		
 		target.optionsMap.put("agentConfiguration", properties.getProperty("agentConfiguration", "cont.txt"));
-		target.optionsMap.put("orderBookClass", properties.getProperty("orderBookClass", "ContBook"));
 
+		target.optionsMap.put("orderBookClass", properties.getProperty("orderBookClass", "ContBook"));
+		target.optionsMap.put("orderBookOptions", properties.getProperty("orderBookOptions", "none"));
 	}
 
-	public void buildContAgents() {
+	public void buildAgents() {
 
 		// initialize an array list of traders
 		target.agentList = new ArrayList<GenericPlayer>();

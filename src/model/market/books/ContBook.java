@@ -30,7 +30,6 @@ public class ContBook implements OrderBook {
 		price_t = price_t * Math.exp(returnRate_t);
 		// clear out excess demand parameter
 		excessDemand = 0.0;
-
 	}
 
 
@@ -53,7 +52,7 @@ public class ContBook implements OrderBook {
 	
 
 	public double priceImpact(double d) {
-		return Math.atan(d / myWorld.parameterMap.get("lambda"));
+		return Math.atan(d / myWorld.parameterMap.get("Cont_lambda"));
 		// return Math.atan2(d, myWorld.lambda);
 		// return d / myWorld.lambda;
 	}
@@ -62,11 +61,10 @@ public class ContBook implements OrderBook {
 
 	public void setMyWorld(FinancialModel myWorld) {
 		this.myWorld = myWorld;
-
+		price_t = myWorld.parameterMap.get("initialPrice"); 
 	}
 
 	public double getReturnRate() {
-		// TODO Auto-generated method stub
 		return returnRate_t;
 	}
 	

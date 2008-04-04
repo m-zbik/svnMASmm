@@ -206,7 +206,7 @@ public class FinancialModelWithUI extends GUIState {
 		returnHist.setDomainAxisLabel("Value");
 		returnHist.setRangeAxisLabel("Number of observations");
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
-			returnHist.addSeries(fakeArray, 40, "Return histogram for asset " + a, null);
+			returnHist.addSeries(fakeArray, 60, "Return histogram for asset " + a, null);
 		}
 		returnHist.update();
 		returnHistFrame = returnHist.createFrame(this);

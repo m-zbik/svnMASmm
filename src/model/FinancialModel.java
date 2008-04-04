@@ -34,7 +34,7 @@ public class FinancialModel extends SimState {
 	public HashMap<String, String> optionsMap = new HashMap<String, String>();
 	
 	// array list of traders
-	public ArrayList<GenericPlayer> agentList;
+	public ArrayList<GenericPlayer> agentList = null;
 	
 	// Market class: calculates excess demand and return rate
 	public Market myMarket;
@@ -59,7 +59,7 @@ public class FinancialModel extends SimState {
 		
 		this.schedule.reset();
 		
-		myCreator.buildContAgents();
+		myCreator.buildAgents();
 		
 		runID++;
 
