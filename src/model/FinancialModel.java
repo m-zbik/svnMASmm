@@ -39,8 +39,7 @@ public class FinancialModel extends SimState {
 	// Market class: calculates excess demand and return rate
 	public Market myMarket;
 	
-	// external signal to update threshold
-	public double epsilon_t;
+
 	
 	public int runID = 0;
 	
@@ -63,19 +62,7 @@ public class FinancialModel extends SimState {
 		
 		runID++;
 
-		// another embedded class; generates a new epsilon value
-		final Steppable signalAgent = new Steppable() {
-			public void step(SimState state) {
-
-				epsilon_t = parameterMap.get("D") * state.random.nextGaussian();
-
-			}
-		};
-
-		// schedule classes to run in the specified order
-		this.schedule.scheduleRepeating(signalAgent, 0, 1.0);
-		
-
+	
 		// embedded class; stops the the model run (used in scheduler)
 		final Steppable finalAgent = new Steppable() {
 
