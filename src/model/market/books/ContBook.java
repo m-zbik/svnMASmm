@@ -19,6 +19,9 @@ public class ContBook implements OrderBook {
 
 	// set initial return rate to zero
 	public double returnRate_t = 0;
+	
+	// external signal to update threshold
+	public double epsilon_t;
 
 	
 
@@ -30,6 +33,8 @@ public class ContBook implements OrderBook {
 		price_t = price_t * Math.exp(returnRate_t);
 		// clear out excess demand parameter
 		excessDemand = 0.0;
+		// set shock for next period
+		epsilon_t = myWorld.parameterMap.get("D") * myWorld.random.nextGaussian();
 	}
 
 
@@ -107,5 +112,14 @@ public class ContBook implements OrderBook {
 		// TODO Auto-generated method stub
 		
 	}
+
+
+
+	public double getRandomComponent() {
+		// TODO Auto-generated method stub
+		return epsilon_t;
+	}
+	
+	
 
 }

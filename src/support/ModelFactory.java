@@ -45,8 +45,8 @@ public class ModelFactory {
 		target.parameterMap.put("maxT", new Double(properties.getProperty("maxT", "100000")));
 		target.parameterMap.put("numAssets", new Double(properties.getProperty("numAssets", "1")));
 		target.parameterMap.put("initialPrice", new Double(properties.getProperty("initialPrice", "10")));
-		target.parameterMap.put("Cont_s", new Double(properties.getProperty("s", "0.1")));
-		target.parameterMap.put("Cont_lambda", new Double(properties.getProperty("lambda", "10")));
+		target.parameterMap.put("Cont_s", new Double(properties.getProperty("Cont_s", "0.1")));
+		target.parameterMap.put("Cont_lambda", new Double(properties.getProperty("Cont_lambda", "10")));
 		target.parameterMap.put("Farmer_alpha", new Double(properties.getProperty("Farmer_alpha", "0.65")));
 		target.parameterMap.put("Farmer_delta", new Double(properties.getProperty("Farmer_delta", ".01")));
 		target.parameterMap.put("Farmer_mu", new Double(properties.getProperty("Farmer_mu", "0.5")));

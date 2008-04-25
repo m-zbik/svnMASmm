@@ -66,4 +66,6 @@ public interface OrderBook {
 	public void setMyWorld(FinancialModel myWorld);
 
 	public void setMyID(int a);
+
+	public double getRandomComponent();
 }

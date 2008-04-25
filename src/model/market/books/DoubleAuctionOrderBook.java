@@ -270,4 +270,9 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	public void setMyID(int a) {
 		this.myID = a;
 	}
+
+	public double getRandomComponent() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

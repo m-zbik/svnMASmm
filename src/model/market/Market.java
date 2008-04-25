@@ -80,4 +80,8 @@ public class Market implements Steppable {
 		
 	}
 
+	public double getRandomComponentForAsset(int i) {
+		return orderBooks.get(i).getRandomComponent();
+	}
+
 }

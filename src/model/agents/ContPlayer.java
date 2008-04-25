@@ -20,8 +20,6 @@ public class ContPlayer extends GenericPlayer {
 	// trader's threshold
 	public double threshold;
 
-	
-
 	public double s_local;
 
 	// constructor
@@ -34,7 +32,7 @@ public class ContPlayer extends GenericPlayer {
 
 		if (state.schedule.getTime() == 0) {
 
-			this.s_local = myWorld.parameterMap.get("s");
+			this.s_local = myWorld.parameterMap.get("Cont_s");
 			
 			// assign a random threshold; values range from 0 to 1
 			this.threshold = myWorld.random.nextDouble();
@@ -53,17 +51,19 @@ public class ContPlayer extends GenericPlayer {
 	public void generateOrders() {
 
 		LimitOrder tempOrder;
+		
+		double epsilon_t = myWorld.myMarket.getRandomComponentForAsset(0);
 
 		// if epsilon_t is below the negative value of threshold
 		// issue an order to sell
-		if (myWorld.epsilon_t < -1 * this.threshold) {
+		if (epsilon_t < -1 * this.threshold) {
 			double currentAskPrice = this.myWorld.myMarket.getAskPriceForAsset(0);
 			tempOrder = new LimitOrder(this, OrderType.SALE, 0, currentAskPrice, 1, 1);
 			this.myWorld.myMarket.acceptOrder(tempOrder);
 
 			// if epsilon_t is above the positive value of threshold
 			// issue an order to buy
-		} else if (myWorld.epsilon_t > this.threshold) {
+		} else if (epsilon_t > this.threshold) {
 
 			double currentBidPrice = this.myWorld.myMarket.getBidPriceForAsset(0);
 			tempOrder = new LimitOrder(this, OrderType.PURCHASE, 0, currentBidPrice, 1, 1);
