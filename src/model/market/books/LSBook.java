@@ -118,4 +118,14 @@ public class LSBook implements OrderBook {
 		return epsilon_t;
 	}
 
+	public double getVolume() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public double getAverageTradePrice() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

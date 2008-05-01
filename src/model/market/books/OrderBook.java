@@ -68,4 +68,9 @@ public interface OrderBook {
 	public void setMyID(int a);
 
 	public double getRandomComponent();
+	
+	public double getVolume();
+	
+	public double getAverageTradePrice();
+	
 }

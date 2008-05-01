@@ -21,16 +21,27 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	protected FinancialModel myWorld;
 
 	protected SortedSet<LimitOrder> buyOrders;
+
 	protected SortedSet<LimitOrder> sellOrders;
 
 	protected int myID;
 
 	public double returnRate_t = 0;
+
 	public double price_t = 1;
-	
-	// set to true if price as stored in the order book are the log of actual price;
+
+	// set to true if price as stored in the order book are the log of actual
+	// price;
 	// this implies negative prices are perfectly acceptable
 	public boolean logPricing = false;
+
+	public double volumeTraded = 0;
+
+	public double valueTraded = 0;
+	
+	public double oldVolumeTraded = 0;
+
+	public double oldValueTraded = 0;
 
 	public DoubleAuctionOrderBook() {
 		super();
@@ -45,8 +56,8 @@ public class DoubleAuctionOrderBook implements OrderBook {
 		}
 
 		// give it a new, unique transaction ID within the orderbook
-//		order.transactionID.set(nextTransactionID++);
-		
+		// order.transactionID.set(nextTransactionID++);
+
 		if (order.type == OrderType.PURCHASE) {
 			buyOrders.add(order);
 		} else {
@@ -78,41 +89,45 @@ public class DoubleAuctionOrderBook implements OrderBook {
 		double currentTime = myWorld.schedule.getTime();
 		int origQuant = quantity;
 		double totalPrice = 0.0;
-        
+
 		// The operation is the same regardless of whether we're buying or
 		// selling. We just need to choose the right orders to work on.
 		SortedSet<LimitOrder> orders;
 		if (type == OrderType.PURCHASE) {
-			orders=sellOrders;
+			orders = sellOrders;
 		} else {
-			orders=buyOrders;
+			orders = buyOrders;
 		}
 
 		while ((quantity > 0) && (!orders.isEmpty())) {
 
 			LimitOrder lo = orders.first();
 
- 			// ensure this order hasn't expired
+			// ensure this order hasn't expired
 			if (lo.expirationTime < currentTime) {
 				continue;
 			}
- 			
-			int curQuantity=0;
- 			if (lo.quantityPending() >= quantity) {
- 				curQuantity = quantity;
- 			} else {
- 				curQuantity = quantity - lo.quantityPending();
- 			}
- 			quantity -= curQuantity;
- 			
- 			// Execute:
- 			// Update the LimitOrder by adding to the quantityExecuted
- 			lo.quantityExecuted.addAndGet(curQuantity);
- 			// Update the market order
- 			totalPrice += lo.pricePerUnit * curQuantity;
- 			
+
+			int curQuantity = 0;
+			if (lo.quantityPending() >= quantity) {
+				curQuantity = quantity;
+			} else {
+				curQuantity = quantity - lo.quantityPending();
+			}
+			quantity -= curQuantity;
+
+			// Execute:
+			// Update the LimitOrder by adding to the quantityExecuted
+			lo.quantityExecuted.addAndGet(curQuantity);
+			// Update the market order
+			totalPrice += lo.pricePerUnit * curQuantity;
+
+			this.valueTraded += lo.pricePerUnit * curQuantity;
+			this.volumeTraded += curQuantity;
+
 			if (lo.quantityPending() == 0) {
-				// the limitOrder is fully executed; remove it from the pending orders
+				// the limitOrder is fully executed; remove it from the pending
+				// orders
 				orders.remove(lo);
 			}
 		}
@@ -147,7 +162,7 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	}
 
 	public synchronized double getSpread() {
-		return this.getAskPrice() - this.getBidPrice();	
+		return this.getAskPrice() - this.getBidPrice();
 	}
 
 	public synchronized void cleanup() {
@@ -162,7 +177,7 @@ public class DoubleAuctionOrderBook implements OrderBook {
 				ordersToRemove.add(l);
 			}
 		}
-	    sellOrders.removeAll(ordersToRemove);
+		sellOrders.removeAll(ordersToRemove);
 		ordersToRemove.clear();
 
 		for (LimitOrder l : this.buyOrders) {
@@ -171,7 +186,6 @@ public class DoubleAuctionOrderBook implements OrderBook {
 			}
 		}
 		buyOrders.removeAll(ordersToRemove);
-
 
 		/* Clean up negative spreads by trading overlapping LimitOrders */
 		while ((this.getSpread() <= 0.0) && (buyOrders.size() > 0) && (sellOrders.size() > 0)) {
@@ -182,6 +196,10 @@ public class DoubleAuctionOrderBook implements OrderBook {
 			int curQuantity = Math.min(firstBuy.quantityPending(), firstSell.quantityPending());
 			firstBuy.quantityExecuted.addAndGet(curQuantity);
 			firstSell.quantityExecuted.addAndGet(curQuantity);
+
+			this.volumeTraded += curQuantity;
+			this.valueTraded += curQuantity * (firstBuy.pricePerUnit + firstSell.pricePerUnit) * 0.5;
+
 			// NB: Any difference in prices is profit for the exchange :)
 
 			if (firstBuy.quantityPending() == 0) {
@@ -199,12 +217,17 @@ public class DoubleAuctionOrderBook implements OrderBook {
 		if (logPricing) {
 			returnRate_t = newPrice_t - price_t;
 		} else {
-			// note we must be careful here to use this only 
+			// note we must be careful here to use this only
 			// when price_t cannot be 0, and the ratio can only be positive.
 			returnRate_t = Math.log(newPrice_t / price_t);
 		}
-		  
+
 		price_t = newPrice_t;
+		this.oldValueTraded= this.valueTraded;
+		this.valueTraded = 0;
+		this.oldVolumeTraded = this.volumeTraded;
+		this.volumeTraded = 0;
+		
 	}
 
 	// returns an array with an entry of the price for each unit of limit order
@@ -215,7 +238,7 @@ public class DoubleAuctionOrderBook implements OrderBook {
 		for (LimitOrder l : buyOrders) {
 
 			// theoretically this should be quantityPending
-			for (int i = 0; i < l.quantity; i++) { 
+			for (int i = 0; i < l.quantity; i++) {
 				freqVec.add(l.pricePerUnit);
 			}
 
@@ -226,7 +249,7 @@ public class DoubleAuctionOrderBook implements OrderBook {
 			retArray[i] = freqVec.get(i);
 		}
 
-    	return retArray;
+		return retArray;
 	}
 
 	// returns an array with an entry of the price for each unit of each limit
@@ -253,16 +276,16 @@ public class DoubleAuctionOrderBook implements OrderBook {
 
 	public synchronized void setMyWorld(FinancialModel myWorld) {
 		this.myWorld = myWorld;
-		price_t=myWorld.parameterMap.get("initialPrice");
+		price_t = myWorld.parameterMap.get("initialPrice");
 		if (this.myWorld.optionsMap.get("orderBookOptions").equalsIgnoreCase("logPricing")) {
-			logPricing=true;
+			logPricing = true;
 		}
 	}
 
 	public double getReturnRate() {
-			return returnRate_t;
+		return returnRate_t;
 	}
-	
+
 	public double getTickPrice() {
 		return price_t;
 	}
@@ -274,5 +297,15 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	public double getRandomComponent() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public double getVolume() {
+		// TODO Auto-generated method stub
+		return this.oldVolumeTraded;
+	}
+
+	public double getAverageTradePrice() {
+		// TODO Auto-generated method stub
+		return this.oldValueTraded / (this.oldVolumeTraded + 1);
 	}
 }

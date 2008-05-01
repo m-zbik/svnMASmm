@@ -35,6 +35,10 @@ public class FinancialModelWithUI extends GUIState {
 	public TimeSeriesChartGenerator acfChart;
 
 	public JFrame acfFrame;
+	
+	public TimeSeriesChartGenerator volumeChart;
+
+	public JFrame volumeFrame;
 
 	public HistogramGenerator returnHist;
 
@@ -184,6 +188,19 @@ public class FinancialModelWithUI extends GUIState {
 		returnFrame.getContentPane().add(returnChart, BorderLayout.CENTER);
 		returnFrame.pack();
 		c.registerFrame(returnFrame);
+		
+		volumeChart = new TimeSeriesChartGenerator();
+		volumeChart.setTitle("Volumes plot");
+		volumeChart.setDomainAxisLabel("Step");
+		volumeChart.setRangeAxisLabel("Volume");
+		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
+			volumeChart.addSeries(myReporter.volumeSeries.get(a), null);
+		}
+		volumeFrame = volumeChart.createFrame(this);
+		volumeFrame.getContentPane().setLayout(new BorderLayout());
+		volumeFrame.getContentPane().add(volumeChart, BorderLayout.CENTER);
+		volumeFrame.pack();
+		c.registerFrame(volumeFrame);
 
 		acfChart = new TimeSeriesChartGenerator();
 		acfChart.setTitle("Autocorrelation of returns");

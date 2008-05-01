@@ -22,10 +22,22 @@ public class ContBook implements OrderBook {
 	
 	// external signal to update threshold
 	public double epsilon_t;
-
 	
+	public double currentDemand = 0;
+	
+	public double currentSupply = 0;
+	
+	public double oldVolume = 0;
+
+	public double averageTradePrice = 0;
 
 	public void cleanup() {
+		
+
+		oldVolume = Math.min(currentDemand, currentSupply);
+		
+		averageTradePrice = oldVolume*price_t;
+		
 		// calculate return rate; the excess demand is already known
 		// as it is called by agents during order generation phase
 		returnRate_t = this.priceImpact(excessDemand / myWorld.agentList.size());
@@ -35,6 +47,10 @@ public class ContBook implements OrderBook {
 		excessDemand = 0.0;
 		// set shock for next period
 		epsilon_t = myWorld.parameterMap.get("D") * myWorld.random.nextGaussian();
+		
+		currentDemand = 0;
+		
+		currentSupply = 0;
 	}
 
 
@@ -47,8 +63,10 @@ public class ContBook implements OrderBook {
 		
 		if (order.type.equals(OrderType.PURCHASE)) {
 			excessDemand += order.quantity;
+			currentDemand++;
 		} else {
 			excessDemand -= order.quantity;
+			currentSupply++;
 		}
 		
 		return true;
@@ -118,6 +136,20 @@ public class ContBook implements OrderBook {
 	public double getRandomComponent() {
 		// TODO Auto-generated method stub
 		return epsilon_t;
+	}
+
+
+
+	public double getVolume() {
+		// TODO Auto-generated method stub
+		return this.oldVolume;
+	}
+
+
+
+	public double getAverageTradePrice() {
+		// TODO Auto-generated method stub
+		return  this.averageTradePrice;
 	}
 	
 	

@@ -84,4 +84,14 @@ public class Market implements Steppable {
 		return orderBooks.get(i).getRandomComponent();
 	}
 
+	public double getAverageTradePriceForAsset(int i) {
+		// TODO Auto-generated method stub
+		return orderBooks.get(i).getAverageTradePrice();
+	}
+
+	public double getVolumeForAsset(int i) {
+		// TODO Auto-generated method stub
+		return orderBooks.get(i).getVolume();
+	}
+
 }
