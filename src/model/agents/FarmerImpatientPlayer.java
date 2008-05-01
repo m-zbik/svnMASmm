@@ -11,9 +11,10 @@ import support.Distributions;
 //prices are perfectly acceptable.
 public class FarmerImpatientPlayer extends GenericPlayer {
 
-	private Distributions randDist=null;
+	private Distributions randDist = null;
 
 	private double mu; // Poisson rate: ordered placed per step
+
 	private int sigma; // order size
 
 	public FarmerImpatientPlayer() {
@@ -24,14 +25,14 @@ public class FarmerImpatientPlayer extends GenericPlayer {
 		// do initialization
 		this.myWorld = target;
 		this.id = i;
-		
+
 		randDist = new Distributions(myWorld.random);
-		mu=myWorld.parameterMap.get("Farmer_mu");
-		sigma=myWorld.parameterMap.get("Farmer_sigma").intValue();
+		mu = myWorld.parameterMap.get("Farmer_mu");
+		sigma = myWorld.parameterMap.get("Farmer_sigma").intValue();
 
 		target.schedule.scheduleRepeating(1.0, 1, this, 1.0);
 	}
-	
+
 	public void step(SimState state) {
 
 		this.generateOrders();
@@ -51,10 +52,10 @@ public class FarmerImpatientPlayer extends GenericPlayer {
 			} else {
 				orderType = OrderType.SALE;
 			}
-			
-		    myWorld.myMarket.acceptMarketOrder(orderType, asset, sigma);
-		    // TODO Catch exceptions, manage wealth
-		}	
+
+			myWorld.myMarket.acceptMarketOrder(orderType, asset, sigma);
+			// TODO Catch exceptions, manage wealth
+		}
 
 	}
 

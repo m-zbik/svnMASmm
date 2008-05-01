@@ -37,7 +37,7 @@ public class ModelFactory {
 
 		Properties properties = new Properties();
 		try {
-			properties.load(new FileInputStream("setups//main.properties"));
+			properties.load(new FileInputStream("setups\\main.properties"));
 		} catch (IOException e) {
 		}
 

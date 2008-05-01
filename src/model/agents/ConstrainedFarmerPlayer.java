@@ -10,7 +10,7 @@ import java.util.ArrayList;
 /* Agent that places limit orders according to Farmer's Model */
 
 // NOTE: All prices in this model are LOG prices
-public class FarmerPatientPlayer extends GenericPlayer {
+public class ConstrainedFarmerPlayer extends GenericPlayer {
 
 	private Distributions randDist = null;
 
@@ -22,7 +22,7 @@ public class FarmerPatientPlayer extends GenericPlayer {
 
 	ArrayList<LimitOrder> myOrders;
 
-	public FarmerPatientPlayer() {
+	public ConstrainedFarmerPlayer() {
 		myOrders = new ArrayList<LimitOrder>();
 	}
 
