@@ -51,11 +51,13 @@ public class ModelFactory {
 		target.parameterMap.put("Farmer_delta", new Double(properties.getProperty("Farmer_delta", ".01")));
 		target.parameterMap.put("Farmer_mu", new Double(properties.getProperty("Farmer_mu", "0.5")));
 		target.parameterMap.put("Farmer_sigma", new Double(properties.getProperty("Farmer_sigma", "1")));
+		target.parameterMap.put("Farmer_granularity", new Double(properties.getProperty("Farmer_granularity", "0.0")));
 
 		target.parameterMap.put("LS_h", new Double(properties.getProperty("LS_h", "1")));
 		target.parameterMap.put("LS_kappa", new Double(properties.getProperty("LS_kappa", "1")));
 		target.optionsMap.put("LS_herding", properties.getProperty("LS_herding", "true"));
 		target.optionsMap.put("LS_volatility", properties.getProperty("LS_volatility", "true"));
+		target.optionsMap.put("Farmer_logPricing", properties.getProperty("Farmer_logPricing", "true"));
 		
 		target.optionsMap.put("agentConfiguration", properties.getProperty("agentConfiguration", "cont.txt"));
 		target.optionsMap.put("orderBookClass", properties.getProperty("orderBookClass", "ContBook"));

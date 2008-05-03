@@ -20,8 +20,12 @@ public class FarmerPatientPlayer extends GenericPlayer {
 
 	private int sigma; // order size (constant)
 
-	ArrayList<LimitOrder> myOrders;
+	private double granularity = 0.0; // round to tenths, hundredths, thousandths, etc
+	
+	private boolean useLogPricing = true;
 
+	ArrayList<LimitOrder> myOrders;
+	
 	public FarmerPatientPlayer() {
 		myOrders = new ArrayList<LimitOrder>();
 	}
@@ -35,6 +39,8 @@ public class FarmerPatientPlayer extends GenericPlayer {
 		alpha = myWorld.parameterMap.get("Farmer_alpha");
 		delta = myWorld.parameterMap.get("Farmer_delta");
 		sigma = myWorld.parameterMap.get("Farmer_sigma").intValue();
+		granularity = myWorld.parameterMap.get("Farmer_granularity");
+		useLogPricing = myWorld.optionsMap.get("Farmer_logPricing").equalsIgnoreCase("true");
 
 		target.schedule.scheduleRepeating(0.0, 1, this, 1.0);
 	}
@@ -47,6 +53,14 @@ public class FarmerPatientPlayer extends GenericPlayer {
 
 	}
 
+	private double roundPrice(double price) {
+	  if (granularity == 0.0) {
+		  return price;
+	  } else {
+		  return ((double)((int)(price * granularity + 0.5)))/granularity;
+	  }
+	}
+	
 	private void generateOrders() {
 
 		int numOrdersPlaced = randDist.nextPoisson(alpha);
@@ -65,7 +79,14 @@ public class FarmerPatientPlayer extends GenericPlayer {
 				// Exponential distribution: Log prices at "uniform intensity"
 				double offset = randDist.nextExponential(0.9);
 
-				price = ask - Math.log(offset + 1.0);
+				if (useLogPricing) {
+					price = ask - Math.log(offset+1.0);
+				}
+				else {
+					price = Math.exp(Math.log(ask) - Math.log(offset + 1.0));
+					price = roundPrice(price);
+				}
+
 
 			} else {
 				// Make a sale limit order
@@ -75,10 +96,17 @@ public class FarmerPatientPlayer extends GenericPlayer {
 				// Exponential distribution: Log prices at "uniform intensity"
 				double offset = randDist.nextExponential(0.9);
 
-				price = bid + Math.log(offset + 1.0);
+				if (useLogPricing) {
+					price = bid + Math.log(offset + 1.0);
+				}
+				else {
+					price = Math.exp(Math.log(bid) + Math.log(offset + 1.0));
+					price = roundPrice(price);
+				}
 			}
 
 			double expirationTime = myWorld.schedule.getTime() + 10000.0;
+            
 			LimitOrder newOrder = new LimitOrder(this, newType, asset, price, sigma/* quantity */, expirationTime);
 
 			if (myWorld.myMarket.acceptOrder(newOrder)) {

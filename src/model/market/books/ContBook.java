@@ -34,7 +34,7 @@ public class ContBook implements OrderBook {
 	public void cleanup() {
 		
 
-		oldVolume = Math.min(currentDemand, currentSupply);
+		oldVolume = Math.max(currentDemand, currentSupply);
 		
 		averageTradePrice = oldVolume*price_t;
 		
@@ -139,14 +139,12 @@ public class ContBook implements OrderBook {
 
 
 	public double getVolume() {
-		// TODO Auto-generated method stub
 		return this.oldVolume;
 	}
 
 
 
 	public double getAverageTradePrice() {
-		// TODO Auto-generated method stub
 		return  this.averageTradePrice;
 	}
 	
