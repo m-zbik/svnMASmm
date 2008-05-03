@@ -21,7 +21,7 @@ public class LSBook implements OrderBook {
 	public double returnRate_t = 0;
 
 	// external signal to update threshold
-	public double epsilon_t;
+	public double epsilon_t = 0.5;
 
 	public double pastExcessDemand = 0;
 

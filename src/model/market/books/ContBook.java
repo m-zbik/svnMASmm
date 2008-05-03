@@ -21,7 +21,7 @@ public class ContBook implements OrderBook {
 	public double returnRate_t = 0;
 	
 	// external signal to update threshold
-	public double epsilon_t;
+	public double epsilon_t = 0.1;
 	
 	public double currentDemand = 0;
 	
@@ -79,8 +79,6 @@ public class ContBook implements OrderBook {
 		// return Math.atan2(d, myWorld.lambda);
 		// return d / myWorld.lambda;
 	}
-
-	
 
 	public void setMyWorld(FinancialModel myWorld) {
 		this.myWorld = myWorld;

@@ -36,12 +36,11 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	public boolean logPricing = false;
 
 	public double volumeTraded = 0;
-
 	public double valueTraded = 0;
-	
 	public double oldVolumeTraded = 0;
-
 	public double oldValueTraded = 0;
+	
+    public double epsilon_t = 0.01;
 
 	public DoubleAuctionOrderBook() {
 		super();
@@ -121,7 +120,7 @@ public class DoubleAuctionOrderBook implements OrderBook {
 			lo.quantityExecuted.addAndGet(curQuantity);
 			// Update the market order
 			totalPrice += lo.pricePerUnit * curQuantity;
-
+            // Update aggregate value/volume traded
 			this.valueTraded += lo.pricePerUnit * curQuantity;
 			this.volumeTraded += curQuantity;
 
@@ -143,7 +142,8 @@ public class DoubleAuctionOrderBook implements OrderBook {
 
 		if (buyOrders.isEmpty()) {
 			// TODO: this should probably change to price_t
-			return myWorld.parameterMap.get("initialPrice");
+			//return myWorld.parameterMap.get("initialPrice");
+			return price_t;
 		} else {
 			return buyOrders.first().pricePerUnit;
 		}
@@ -154,7 +154,8 @@ public class DoubleAuctionOrderBook implements OrderBook {
 
 		if (sellOrders.isEmpty()) {
 			// TODO: this should probably change to price_t
-			return myWorld.parameterMap.get("initialPrice");
+			//return myWorld.parameterMap.get("initialPrice");
+			return price_t;
 		} else {
 			return sellOrders.first().pricePerUnit;
 		}
@@ -227,7 +228,9 @@ public class DoubleAuctionOrderBook implements OrderBook {
 		this.valueTraded = 0;
 		this.oldVolumeTraded = this.volumeTraded;
 		this.volumeTraded = 0;
-		
+
+		// set shock for next period
+		epsilon_t = myWorld.parameterMap.get("D") * myWorld.random.nextGaussian();
 	}
 
 	// returns an array with an entry of the price for each unit of limit order
@@ -295,17 +298,14 @@ public class DoubleAuctionOrderBook implements OrderBook {
 	}
 
 	public double getRandomComponent() {
-		// TODO Auto-generated method stub
-		return 0;
+		return epsilon_t;
 	}
 
 	public double getVolume() {
-		// TODO Auto-generated method stub
 		return this.oldVolumeTraded;
 	}
 
 	public double getAverageTradePrice() {
-		// TODO Auto-generated method stub
 		return this.oldValueTraded / (this.oldVolumeTraded + 1);
 	}
 }

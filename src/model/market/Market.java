@@ -28,10 +28,11 @@ public class Market implements Steppable {
 	// constructor
 	public Market(FinancialModel myWorld) {
 		this.myWorld = myWorld;
-
+/*
 		for (int o = 0; o < myWorld.parameterMap.get("numAssets"); o++) {
 
 		}
+*/
 
 	}
 
@@ -73,7 +74,6 @@ public class Market implements Steppable {
 		try {
 			this.orderBooks.get(asset).executeMarketOrder(newType, amount);
 		} catch (LiquidityException e) {
-			// TODO Auto-generated catch block
 			// TODO: this should be left for the caller to catch
 			 e.printStackTrace();
 		}
@@ -85,12 +85,10 @@ public class Market implements Steppable {
 	}
 
 	public double getAverageTradePriceForAsset(int i) {
-		// TODO Auto-generated method stub
 		return orderBooks.get(i).getAverageTradePrice();
 	}
 
 	public double getVolumeForAsset(int i) {
-		// TODO Auto-generated method stub
 		return orderBooks.get(i).getVolume();
 	}
 
