@@ -69,21 +69,19 @@ public class FinancialModel extends SimState {
 			private static final long serialVersionUID = 6184761986120478954L;
 
 			public void step(SimState state) {
-
-				
 				
 				if (!wrapperActive) {
 					myReporter.finishAll();
 				}
 				
 				state.finish();
-
 			}
+
 		};
 		
 		// run the model maxT times and then finish the execution
 		schedule.scheduleOnce(this.parameterMap.get("maxT"), (int) schedule.MAXIMUM_INTEGER, finalAgent);
-		
+	
 		schedule.scheduleRepeating(myReporter, 10, 1);
 	}
 
