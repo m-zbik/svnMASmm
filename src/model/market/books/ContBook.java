@@ -75,9 +75,9 @@ public class ContBook implements OrderBook {
 	
 
 	public double priceImpact(double d) {
-		return Math.atan(d / myWorld.parameterMap.get("Cont_lambda"));
+		// return Math.atan(d / myWorld.parameterMap.get("Cont_lambda"));
 		// return Math.atan2(d, myWorld.lambda);
-		// return d / myWorld.lambda;
+		return d / myWorld.parameterMap.get("Cont_lambda");
 	}
 
 	public void setMyWorld(FinancialModel myWorld) {

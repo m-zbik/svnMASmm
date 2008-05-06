@@ -29,13 +29,13 @@ public class Reporter implements Steppable {
 			
 			
 			String temp = "";
-			temp = temp + "runID" + ";";
-			temp = temp + "time" + ";";
-			temp = temp + "asset" + ";";
-			temp = temp + "closeAskPrice" + ";";
-			temp = temp + "closeBidPrice" + ";";
-			temp = temp + "averageTradePrice" + ";";
-			temp = temp + "volume" + ";";
+			temp = temp + "runID" + "	";
+			temp = temp + "time" + "	";
+			temp = temp + "asset" + "	";
+			temp = temp + "closeAskPrice" + "	";
+			temp = temp + "closeBidPrice" + "	";
+			temp = temp + "averageTradePrice" + "	";
+			temp = temp + "volume" + "	";
 			temp = temp + "return" ;
 			
 
@@ -66,13 +66,14 @@ public class Reporter implements Steppable {
 			for (int asset =0; asset < myModel.parameterMap.get("numAssets"); asset++) {
 			
 			String temp = "";
-			temp = temp + myModel.runID + ";";
-			temp = temp + myModel.schedule.getTime() + ";";
-			temp = temp + myModel.myMarket.getAskPriceForAsset(asset)+ ";";
-			temp = temp + myModel.myMarket.getBidPriceForAsset(asset)+ ";";
-			temp = temp + myModel.myMarket.getAverageTradePriceForAsset(asset) + ";";
-			temp = temp + myModel.myMarket.getVolumeForAsset(asset) + ";";
-			temp = temp + myModel.myMarket.getReturnRateForAsset(asset) + ";";
+			temp = temp + myModel.runID + "	";
+			temp = temp + myModel.schedule.getTime() + "	";
+			temp = temp + asset + "	";
+			temp = temp + myModel.myMarket.getAskPriceForAsset(asset)+ "	";
+			temp = temp + myModel.myMarket.getBidPriceForAsset(asset)+ "	";
+			temp = temp + myModel.myMarket.getAverageTradePriceForAsset(asset) + "	";
+			temp = temp + myModel.myMarket.getVolumeForAsset(asset) + "	";
+			temp = temp + myModel.myMarket.getReturnRateForAsset(asset);
 			
 			outPrices.write(temp);
 			outPrices.newLine();			
@@ -83,7 +84,7 @@ public class Reporter implements Steppable {
 			e.printStackTrace();
 		}
 
-	}
+	}	
 
 	public void finishAll() {
 

@@ -33,13 +33,14 @@ public class ContPlayer extends GenericPlayer {
 		if (state.schedule.getTime() == 0) {
 
 			this.s_local = myWorld.parameterMap.get("Cont_s");
-			
 			// assign a random threshold; values range from 0 to 1
-			this.threshold = myWorld.random.nextDouble();
+			this.threshold = myWorld.parameterMap.get("D") * myWorld.random.nextDouble();
 		}
 
 		if (state.schedule.getTime() > 0) {
+
 			this.updateThresholds();
+
 		}
 
 		this.generateOrders();
@@ -51,7 +52,7 @@ public class ContPlayer extends GenericPlayer {
 	public void generateOrders() {
 
 		LimitOrder tempOrder;
-		
+
 		double epsilon_t = myWorld.myMarket.getRandomComponentForAsset(0);
 
 		// if epsilon_t is below the negative value of threshold
