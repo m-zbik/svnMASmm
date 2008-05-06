@@ -69,10 +69,48 @@ AAA
 \end{figure}
 
 
+\section{Overview of Implemented Models}
+
+\subsection{Cont Model}
+
+The Cont model \cite{cont2006} is the simplest implemented. All traders (agents) follow the same behavioral rules. They are heterogeneous in the sense that they are given independently assigned (subjective) volatility thresholds $\theta_i(t)$. Each period, all agents recieve a common signal, which can be interpreted as public information or "news", in the form of IID Gaussian random variables $\epsilon_t$. Each agent $i$ responds to this signal by selling if $\epsilon_t < -\theta_i(t)$, buying if $\epsilon_t > \theta_i(t)$, and otherwise sitting out the period. The market then determines the excess demand and arrives at the market clearing price by means of a market impact function. Lastly, with probability $s$, agents update their threshold to match the absolute value of the return rate for the current period. Somewhat surprisingly, even this very simple "zero intelligence" model of agent behavior yields fairly realistic market movements, as presented on Figure \ref{fig:sampleDynamicsCont}.
+
+TODO Note:cyclicality.
+
 \begin{figure}[htbp]
   \begin{center}
    \mbox{
-      \subfigure[Ask and bid prices.]{\scalebox{0.5}{\quad \quad \includegraphics[width=0.9\textwidth,height=0.8\textwidth]{../graphics/Farmer-pricesPlot.pdf}}} \quad
+      \subfigure[Ask and bid prices.]{\scalebox{0.5}{\quad \quad \includegraphics[width=0.9\textwidth]{../graphics/Cont-pricesPlot.pdf}}} \quad
+      \subfigure[Raw and absolute returns.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-returnsPlot.pdf}}}
+      }
+    \mbox{
+      \subfigure[Trade volumes.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-volumesPlot.pdf}}}
+      }
+    \mbox{
+      \subfigure[Returns histogram.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-returnsHistogram.pdf}}} \quad
+      \subfigure[Autocorrelation of returns.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-acfPlot.pdf}}}
+      }
+    \caption{Examples of outputs and statistics from a single run of the FinancialModel simulation for default Cont's parametrization.}
+    \label{fig:sampleDynamicsCont}
+  \end{center}
+\end{figure}
+
+\subsection{Farmer Model}
+The Farmer model \cite{farmer2003} has two types of agents, which trade a single asset by means of a continuous double auction similar to those normally used on stock markets. "Patient" traders place orders place limit orders, which specify both a price and quantity they wish to buy or sell. Limit orders do not execute immediately, and may be canceled at any time. "Impatient" traders place market orders, specifying only a quantity, which execute immediately at the current best price, assuming there is sufficient liquidity provided by outstanding limit orders. This model also has simple behavioral logic for traders. Behavior is regulated by:
+\begin{itemize}
+\item Patient agents place limit orders of constant size at a Poisson rate per unit time, and with a randomly generated price. Orders are equally likely to be either buy or sell orders. Buy limit orders are placed uniformly anywhere in the semiinfinite interval below the current ask price ($-\infty < p < a(t)$), where $p$ is the \emph{logarithm} of the price; similarly for sell orders. A uniform distribution in log prices is equivalent to an exponential distribution in prices. In addition, outstanding limit orders are cancelled at a Poisson rate per unit time. All of these processes are independent.
+\item Impatient agents place market orders of constant size at a Poisson rate per unit time.
+\item A double auction order book. This manages the pending limit orders and facilitates trades between market and limit orders. It also provides aggregate market information such as return rate per unit time and bid-ask spreads.
+\end{itemize}
+This model explains a large portion of the spread and price diffusion of actual stocks given an order flow rate, which essentially means that the double auction structure has a large impact on the nature of market movements. The model also yields market behavior qualitatively close to actual markets in many respects, see Figure \ref{fig:sampleDynamicsFarmer}.
+
+TODO Note: log vs. non-log prices
+TODO Note: effect of price granularity
+
+\begin{figure}[htbp]
+  \begin{center}
+   \mbox{
+      \subfigure[Ask and bid prices.]{\scalebox{0.5}{\quad \quad \includegraphics[width=0.9\textwidth]{../graphics/Farmer-pricesPlot.pdf}}} \quad
       \subfigure[Raw and absolute returns.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-returnPlot.pdf}}}
       }
     \mbox{
@@ -84,46 +122,19 @@ AAA
       \subfigure[Autocorrelation of returns.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-acfReturns.pdf}}}
       }
     \caption{Examples of outputs and statistics from a single run of the FinancialModel simulation for default Farmer's parametrization.}
-    \label{fig:sampleDynamics}
+    \label{fig:sampleDynamicsFarmer}
   \end{center}
 \end{figure}
-
-
-\section{Verification of Correctness}
-TODO: show results side by side with original papers' figures
-
-\section{Overview of Implemented Models}
-
-\subsection{Cont Model}
-The Cont model \cite{cont2006} is the simplest implemented. All traders (agents) follow the same behavioral rules. They are heterogeneous in the sense that they are given independently assigned (subjective) volatility thresholds $\theta_i(t)$. Each period, all agents recieve a common signal, which can be interpreted as public information or "news", in the form of IID Gaussian random variables $\epsilon_t$. Each agent $i$ responds to this signal by selling if $\epsilon_t < -\theta_i(t)$, buying if $\epsilon_t > \theta_i(t)$, and otherwise sitting out the period. The market then determines the excess demand and arrives at the market clearing price by means of a market impact function. Lastly, with probability $s$, agents update their threshold to match the absolute value of the return rate for the current period. Somewhat surprisingly, even this very simple "zero intelligence" model of agent behavior yields fairly realistic market movements.
-TODO Show results.
-TODO Note:cyclicality.
-
-\subsection{Farmer Model}
-The Farmer model \cite{farmer2003} has two types of agents, which trade a single asset by means of a continuous double auction similar to those normally used on stock markets. "Patient" traders place orders place limit orders, which specify both a price and quantity they wish to buy or sell. Limit orders do not execute immediately, and may be canceled at any time. "Impatient" traders place market orders, specifying only a quantity, which execute immediately at the current best price, assuming there is sufficient liquidity provided by outstanding limit orders. This model also has simple behavioral logic for traders. Behavior is regulated by:
-\begin{itemize}
-\item Patient agents place limit orders of constant size at a Poisson rate per unit time, and with a randomly generated price. Orders are equally likely to be either buy or sell orders. Buy limit orders are placed uniformly anywhere in the semiinfinite interval below the current ask price ($-\infty < p < a(t)$), where $p$ is the \emph{logarithm} of the price; similarly for sell orders. A uniform distribution in log prices is equivalent to an exponential distribution in prices. In addition, outstanding limit orders are cancelled at a Poisson rate per unit time. All of these processes are independent.
-\item Impatient agents place market orders of constant size at a Poisson rate per unit time.
-\item A double auction order book. This manages the pending limit orders and facilitates trades between market and limit orders. It also provides aggregate market information such as return rate per unit time and bid-ask spreads.
-\end{itemize}
-This model explains a large portion of the spread and price diffusion of actual stocks given an order flow rate, which essentially means that the double auction structure has a large impact on the nature of market movements. The model also yields market behavior qualitatively close to actual markets in many respects.
-TODO Show results. 
-TODO Note: log vs. non-log prices
-TODO Note: effect of price granularity
 
 \subsection{Farmer-Cont Model}
 We constructed a model combining aspects of the Farmer model with aspects of the Cont model. The result is a model which is still essentially zero intelligence, but which exhibits empirically positive characteristics of both models. In this model there are two types of agents, which interact via the continuous double auction mechanism, as in Farmer. In fact, the Patient traders, which place limit orders and thus provide liquidity, remain the same. Impatient traders are modeled after Cont. They have heterogeneous volatility thresholds, and place market orders depending upon how public information in the form of a normally distributed random variable compares with these thresholds.
 TODO Show results.
 TODO Note: liquidity issues
 
-\subsection{Lambda Model}
-\cite{lamba2007}
-TODO ...
 
-\subsection{Westerhoff Model}
-\cite{westerhoff2004}
-TODO ...
 
+\section{Verification of Correctness}
+TODO: show results side by side with original papers' figures
 \bibliographystyle{plainnat}
 \bibliography{master}
 
