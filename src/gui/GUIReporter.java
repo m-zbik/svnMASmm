@@ -37,7 +37,7 @@ public class GUIReporter implements Steppable {
 	
 	public ArrayList<Vector<Double>> volumeMemory = new ArrayList<Vector<Double>>();
 	
-	public int NumViewable = 10000; // also, the #/data points used in
+	public int NumViewable = 2000; // also, the #/data points used in
 
 	// calculating acf
 

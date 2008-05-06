@@ -7,6 +7,8 @@
 package gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Paint;
 
 import javax.swing.JFrame;
 
@@ -27,7 +29,7 @@ public class FinancialModelWithUI extends GUIState {
 	public TimeSeriesChartGenerator priceChart;
 
 	public JFrame priceFrame;
-	
+
 	public TimeSeriesChartGenerator returnChart;
 
 	public JFrame returnFrame;
@@ -35,7 +37,7 @@ public class FinancialModelWithUI extends GUIState {
 	public TimeSeriesChartGenerator acfChart;
 
 	public JFrame acfFrame;
-	
+
 	public TimeSeriesChartGenerator volumeChart;
 
 	public JFrame volumeFrame;
@@ -99,7 +101,7 @@ public class FinancialModelWithUI extends GUIState {
 
 					if (returnHistFrame.isVisible()) {
 						for (int a = 0; a < ((FinancialModel) state).parameterMap.get("numAssets"); a++) {
-							
+
 							Double[] tempArray = new Double[myReporter.returnMemory.get(a).size()];
 							tempArray = myReporter.returnMemory.get(a).toArray(tempArray);
 							double[] temp2Array = new double[myReporter.returnMemory.get(a).size()];
@@ -114,17 +116,22 @@ public class FinancialModelWithUI extends GUIState {
 
 					if (orderHistFrame.isVisible()) {
 						for (int a = 0; a < ((FinancialModel) state).parameterMap.get("numAssets"); a++) {
-							
-							//((FinancialModel) state).myMarket.orderBooks.get(a).cleanup();
-							
+
+							// ((FinancialModel)
+							// state).myMarket.orderBooks.get(a).cleanup();
+
 							double[] temp2Array = ((FinancialModel) state).myMarket.orderBooks.get(a).getBuyOrders();
-							if (temp2Array.length > 0) {
-								orderHist.updateSeries(2 * a, temp2Array, false);
+							if (temp2Array != null) {
+								if (temp2Array.length > 0) {
+									orderHist.updateSeries(2 * a, temp2Array, false);
+								}
 							}
 
 							temp2Array = ((FinancialModel) state).myMarket.orderBooks.get(a).getSellOrders();
-							if (temp2Array.length > 0) {
-								orderHist.updateSeries(2 * a + 1, temp2Array, false);
+							if (temp2Array != null) {
+								if (temp2Array.length > 0) {
+									orderHist.updateSeries(2 * a + 1, temp2Array, false);
+								}
 							}
 						}
 					}
@@ -138,11 +145,17 @@ public class FinancialModelWithUI extends GUIState {
 						myReporter.setSeries();
 						priceChart.enable();
 					}
-					
+
 					if (returnFrame.isVisible()) {
 						returnChart.disable();
 						myReporter.setSeries();
 						returnChart.enable();
+					}
+
+					if (volumeFrame.isVisible()) {
+						volumeChart.disable();
+						myReporter.setSeries();
+						volumeChart.enable();
 					}
 
 					nextUpdate = nextUpdate + 1;
@@ -164,6 +177,7 @@ public class FinancialModelWithUI extends GUIState {
 		priceChart.setTitle("Prices plot");
 		priceChart.setDomainAxisLabel("Step");
 		priceChart.setRangeAxisLabel("Price");
+		priceChart.getChartPanel().getChart().setBackgroundPaint(Color.white);
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
 			priceChart.addSeries(myReporter.bidPriceSeries.get(a), null);
 			priceChart.addSeries(myReporter.askPriceSeries.get(a), null);
@@ -173,12 +187,12 @@ public class FinancialModelWithUI extends GUIState {
 		priceFrame.getContentPane().add(priceChart, BorderLayout.CENTER);
 		priceFrame.pack();
 		c.registerFrame(priceFrame);
-		
-		
+
 		returnChart = new TimeSeriesChartGenerator();
 		returnChart.setTitle("Returns plot");
 		returnChart.setDomainAxisLabel("Step");
 		returnChart.setRangeAxisLabel("Return");
+		returnChart.getChartPanel().getChart().setBackgroundPaint(Color.white);
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
 			returnChart.addSeries(myReporter.returnSeries.get(a), null);
 			returnChart.addSeries(myReporter.absReturnSeries.get(a), null);
@@ -188,11 +202,12 @@ public class FinancialModelWithUI extends GUIState {
 		returnFrame.getContentPane().add(returnChart, BorderLayout.CENTER);
 		returnFrame.pack();
 		c.registerFrame(returnFrame);
-		
+
 		volumeChart = new TimeSeriesChartGenerator();
 		volumeChart.setTitle("Volumes plot");
 		volumeChart.setDomainAxisLabel("Step");
 		volumeChart.setRangeAxisLabel("Volume");
+		volumeChart.getChartPanel().getChart().setBackgroundPaint(Color.white);
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
 			volumeChart.addSeries(myReporter.volumeSeries.get(a), null);
 		}
@@ -206,6 +221,7 @@ public class FinancialModelWithUI extends GUIState {
 		acfChart.setTitle("Autocorrelation of returns");
 		acfChart.setDomainAxisLabel("Lag");
 		acfChart.setRangeAxisLabel("Correlation");
+		acfChart.getChartPanel().getChart().setBackgroundPaint(Color.white);
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
 			acfChart.addSeries(myReporter.acfAbsReturnsSeries.get(a), null);
 			acfChart.addSeries(myReporter.acfReturnsSeries.get(a), null);
@@ -222,6 +238,7 @@ public class FinancialModelWithUI extends GUIState {
 		returnHist.setTitle("Returns histogram");
 		returnHist.setDomainAxisLabel("Value");
 		returnHist.setRangeAxisLabel("Number of observations");
+		returnChart.getChartPanel().getChart().setBackgroundPaint(Color.white);
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
 			returnHist.addSeries(fakeArray, 60, "Return histogram for asset " + a, null);
 		}
@@ -232,11 +249,12 @@ public class FinancialModelWithUI extends GUIState {
 		returnHistFrame.pack();
 		returnHistFrame.setVisible(false);
 		c.registerFrame(returnHistFrame);
-		
+
 		orderHist = new HistogramGenerator();
 		orderHist.setTitle("Order books");
 		orderHist.setDomainAxisLabel("Value");
 		orderHist.setRangeAxisLabel("Number of observations");
+		orderHist.getChartPanel().getChart().setBackgroundPaint(Color.white);
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
 			orderHist.addSeries(fakeArray, 150, "sell orders for asset " + a, null);
 			orderHist.addSeries(fakeArray, 150, "buy orders for asset " + a, null);
