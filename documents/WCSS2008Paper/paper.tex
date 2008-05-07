@@ -194,16 +194,12 @@ As an experiment, we constructed a model combining some aspects of the Farmer mo
       \quad
       \subfigure[Autocorrelation of absolute returns.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/FC-acfReturns.pdf}}}
       }
-    \caption{Examples of outputs and statistics from a single run of the Farmer-Cont hybryd.}
+    \caption{Examples of outputs and statistics from a single run of the Farmer-Cont hybrid.}
     \label{fig:ContLargeSSim}
   \end{center}
 \end{figure}
 
-
-TODO Show results.
 TODO Note: liquidity issues
-
-
 
 \section{Verification of Correctness}
 
@@ -228,7 +224,10 @@ These compare well with data shown in the original paper (shown in Figures \ref{
   \end{center}
 \end{figure}
 
-\section{Muti-run Instrumentation}
+\section{Batch Mode Instrumentation}
+
+FinancialMarketModel includes a set of wrappers that are useful for conducting multi-run batch parameter space exploration or sensitivity analysis. A simple wrapper is included in \texttt{experiments} package. Post-run analysis can be performed by using Matlab, sample scripts are included in scripts folder and can be used to render shape of autocorrelation curves and histograms of returns as a function of simulation settings. Figure \ref{fig:ContMultiRun} presents a sample prepared by varying the $D$ news process variance for Cont's model.    
+
 
 \begin{figure}[htbp]
   \begin{center}
