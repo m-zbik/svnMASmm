@@ -34,6 +34,10 @@ public class FinancialModelWithUI extends GUIState {
 
 	public JFrame returnFrame;
 
+	public TimeSeriesChartGenerator trailingAbsReturnChart;
+
+	public JFrame trailingReturnFrame;
+	
 	public TimeSeriesChartGenerator acfChart;
 
 	public JFrame acfFrame;
@@ -139,7 +143,12 @@ public class FinancialModelWithUI extends GUIState {
 					if (acfFrame.isVisible()) {
 						myReporter.acfAbsReturns();
 					}
+					
+					if (trailingReturnFrame.isVisible()) {
+						myReporter.updateTrailing();
+					}
 
+					// TODO: why set series three times??
 					if (priceFrame.isVisible()) {
 						priceChart.disable();
 						myReporter.setSeries();
@@ -203,6 +212,21 @@ public class FinancialModelWithUI extends GUIState {
 		returnFrame.pack();
 		c.registerFrame(returnFrame);
 
+		trailingAbsReturnChart = new TimeSeriesChartGenerator();
+		trailingAbsReturnChart.setTitle("Annual average volatility plot");
+		trailingAbsReturnChart.setDomainAxisLabel("Step");
+		trailingAbsReturnChart.setRangeAxisLabel("Trailing average annual absolute returns");
+		trailingAbsReturnChart.getChartPanel().getChart().setBackgroundPaint(Color.white);
+		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
+			trailingAbsReturnChart.addSeries(myReporter.trailingAbsReturnSeries.get(a), null);
+		}
+		trailingReturnFrame = trailingAbsReturnChart.createFrame(this);
+		trailingReturnFrame.getContentPane().setLayout(new BorderLayout());
+		trailingReturnFrame.getContentPane().add(trailingAbsReturnChart, BorderLayout.CENTER);
+		trailingReturnFrame.pack();
+		c.registerFrame(trailingReturnFrame);
+		
+		
 		volumeChart = new TimeSeriesChartGenerator();
 		volumeChart.setTitle("Volumes plot");
 		volumeChart.setDomainAxisLabel("Step");
@@ -238,7 +262,7 @@ public class FinancialModelWithUI extends GUIState {
 		returnHist.setTitle("Returns histogram");
 		returnHist.setDomainAxisLabel("Value");
 		returnHist.setRangeAxisLabel("Number of observations");
-		returnChart.getChartPanel().getChart().setBackgroundPaint(Color.white);
+		returnHist.getChartPanel().getChart().setBackgroundPaint(Color.white);
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
 			returnHist.addSeries(fakeArray, 60, "Return histogram for asset " + a, null);
 		}

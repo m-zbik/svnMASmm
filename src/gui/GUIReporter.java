@@ -23,6 +23,8 @@ public class GUIReporter implements Steppable {
 
 	public ArrayList<XYSeries> absReturnSeries = new ArrayList<XYSeries>();
 
+	public ArrayList<XYSeries> trailingAbsReturnSeries = new ArrayList<XYSeries>();
+	
 	public ArrayList<XYSeries> acfAbsReturnsSeries = new ArrayList<XYSeries>();
 
 	public ArrayList<XYSeries> acfReturnsSeries = new ArrayList<XYSeries>();
@@ -37,12 +39,14 @@ public class GUIReporter implements Steppable {
 	
 	public ArrayList<Vector<Double>> volumeMemory = new ArrayList<Vector<Double>>();
 	
-	public int NumViewable = 2000; // also, the #/data points used in
+	public int NumViewable = 10000; // also, the #/data points used in
 
 	// calculating acf
 
 	public int ACFViewable = 200;
 
+	public int trailingSampleSize = 365;
+	
 	FinancialModel myModel;
 
 	public int nextUpdate = 0;
@@ -57,6 +61,7 @@ public class GUIReporter implements Steppable {
 			bidPriceSeries.add(new XYSeries("Bid price for asset " + a));
 			askPriceSeries.add(new XYSeries("Ask price for asset " + a));
 			returnSeries.add(new XYSeries("Returns for asset " + a));
+			trailingAbsReturnSeries.add(new XYSeries("Trailing volatility for asset " + a));
 			absReturnSeries.add(new XYSeries("Absolute returns for asset " + a));
 			volumeSeries.add(new XYSeries("Trade volumes for asset " + a));
 			acfAbsReturnsSeries.add(new XYSeries("ACF of absolute returns for asset " + a));
@@ -66,12 +71,16 @@ public class GUIReporter implements Steppable {
 			bidPriceSeries.get(a).setMaximumItemCount(NumViewable);
 			askPriceSeries.get(a).setMaximumItemCount(NumViewable);
 			returnSeries.get(a).setMaximumItemCount(NumViewable);
+			trailingAbsReturnSeries.get(a).setMaximumItemCount(NumViewable);
 			volumeSeries.get(a).setMaximumItemCount(NumViewable);
 			absReturnSeries.get(a).setMaximumItemCount(NumViewable);
 			// initialize
 			for (int i = 1; i < ACFViewable; i++) {
 				acfAbsReturnsSeries.get(a).add(i, 0.0);
 				acfReturnsSeries.get(a).add(i, 0.0);
+			}
+			for (int i=0; i<NumViewable; i++) {
+				trailingAbsReturnSeries.get(a).add(i,0.0);
 			}
 
 			bidPriceMemory.add(new Vector<Double>());
@@ -92,7 +101,6 @@ public class GUIReporter implements Steppable {
 				askPriceMemory.get(a).add((myModel.myMarket.getAskPriceForAsset(a)));
 				returnMemory.get(a).add(myModel.myMarket.getReturnRateForAsset(a));
 				volumeMemory.get(a).add(myModel.myMarket.getVolumeForAsset(a));
-				
 
 			}
 
@@ -113,7 +121,6 @@ public class GUIReporter implements Steppable {
 				returnSeries.get(a).add(i, returnMemory.get(a).get(i));
 				absReturnSeries.get(a).add(i, Math.abs(returnMemory.get(a).get(i)));
 				volumeSeries.get(a).add(i, volumeMemory.get(a).get(i));
-
 			}
 		}
 
@@ -193,6 +200,54 @@ public class GUIReporter implements Steppable {
 			mub += array[i + lag];
 		}
 		return ((nObs * prod) - (mua * mub)) / (Math.sqrt(nObs * a2 - mua * mua) * Math.sqrt(nObs * b2 - mub * mub));
+	}
+	
+	public void updateTrailing() {
+
+		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
+
+			int arrayLen = Math.min(NumViewable, returnMemory.get(a).size());
+			int offset = returnMemory.get(a).size() - arrayLen;
+			if (arrayLen<=trailingSampleSize) return;
+			double[] volatilityArray = new double[arrayLen];
+			for (int i = 0; i < arrayLen; i++) {
+				volatilityArray[i] = Math.abs(returnMemory.get(a).get(i + offset));
+			}
+
+			double[] avgsArray = trailingAverage(volatilityArray, trailingSampleSize);
+			trailingAbsReturnSeries.get(a).clear();
+			for (int i=0; i<avgsArray.length; i++) {
+				// instead of clearing and adding, we just replace the earlier
+				// values
+				//trailingAbsReturnSeries.get(a).updateByIndex(i, avgsArray[i]);
+				trailingAbsReturnSeries.get(a).add(i,avgsArray[i]);
+			}
+		}
+
+	}
+
+	
+	// Takes an array of n numbers; returns the trailing average over samplesize.
+	// The array of averages returned is of length n-samplesize
+	public static double[] trailingAverage(double[] data, int samplesize)
+	{
+	    if (data==null || data.length<=samplesize) {
+		    return null;
+	    }
+	    double[] avgArray = new double[data.length-samplesize];
+	    double sum = 0.0;
+	    
+	    for (int i=0; i<samplesize; i++) {
+	    	sum+=data[i];
+	    }
+	    
+	    for (int i=0; i<data.length-samplesize; i++) {
+	    	avgArray[i] = sum/samplesize;
+	    	sum+=data[i+samplesize];
+	    	sum-=data[i];
+	    }
+	    
+	    return avgArray;
 	}
 
 }
