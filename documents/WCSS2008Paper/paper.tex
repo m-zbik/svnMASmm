@@ -73,33 +73,101 @@ AAA
 
 \subsection{Cont Model}
 
-The Cont model \cite{cont2006} is the simplest implemented. All traders (agents) follow the same behavioral rules. They are heterogeneous in the sense that they are given independently assigned (subjective) volatility thresholds $\theta_i(t)$. Each period, all agents recieve a common signal, which can be interpreted as public information or "news", in the form of IID Gaussian random variables $\epsilon_t$. Each agent $i$ responds to this signal by selling if $\epsilon_t < -\theta_i(t)$, buying if $\epsilon_t > \theta_i(t)$, and otherwise sitting out the period. The market then determines the excess demand and arrives at the market clearing price by means of a market impact function. Lastly, with probability $s$, agents update their threshold to match the absolute value of the return rate for the current period. Somewhat surprisingly, even this very simple "zero intelligence" model of agent behavior yields fairly realistic market movements, as presented on Figure \ref{fig:sampleDynamicsCont}.
+The Cont model (\cite{cont2006}) is the simplest implemented. All traders (agents) follow the same behavioral rules. They are heterogeneous in the sense that they are given independently assigned (subjective) volatility thresholds $\theta_i(t)$. Each period, all agents recieve a common signal, which can be interpreted as public information or "news", in the form of IID Gaussian random variables $\epsilon_t ~ N(0,D^2)$. Each agent $i$ responds to this signal by selling if $\epsilon_t < -\theta_i(t)$, buying if $\epsilon_t > \theta_i(t)$, and otherwise sitting out the period. The market then determines the excess demand and arrives at the market clearing price by means of a market impact function. Lastly, with probability $s$, agents update their threshold to match the absolute value of the return rate for the current period. Somewhat surprisingly, even this very simple "zero intelligence" model of agent behavior yields fairly realistic market movements, as presented in Figures \ref{fig:sampleDynamicsCont_s01} and \ref{fig:sampleDynamicsCont_s1}. These compare well with data shown in the original paper (shown in Figures \ref{fig:ContFig3} and \ref{fig:ContFig4}).
 
-TODO Note:cyclicality.
+One down side of the Cont model that is not noted in the papers is that there appears to be a great degree of periodic cyclicality in the volatility of the markets. This is especially apparent with higher probability $s$ of updating thresholds. With $s=.1$, this is readily apparent if you look at the autocorrelation of absolute returns over longer time scales than shown in the paper (Figure \ref{fig:ContACF1}). This effect can also be seen when averaging over many runs (See Figure \ref{fig:ContACF2}). Holding $s$ constant at 1 and varying $D$, we find the period and amplitude to be predictable.
 
 \begin{figure}[htbp]
   \begin{center}
    \mbox{
-      \subfigure[Ask and bid prices.]{\scalebox{0.5}{\quad \quad \includegraphics[width=0.9\textwidth]{../graphics/Cont-pricesPlot.pdf}}} \quad
-      \subfigure[Raw and absolute returns.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-returnsPlot.pdf}}}
-      }
+    \subfigure[Trade volumes.]{\scalebox{0.33}{ \includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-volumesPlot.pdf}}}
+    \quad
+\subfigure[Price]{\scalebox{0.33}{\includegraphics[width=1.0\textwidth]{../graphics/Cont-s01-pricesPlot.pdf}}}
+}
     \mbox{
-      \subfigure[Trade volumes.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-volumesPlot.pdf}}}
-      }
+      \subfigure[Raw and absolute log returns.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-returnsPlot.pdf}}}
+      \quad
+      \subfigure[Distribution of Returns]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-returnsHistogram.pdf}}}       
+      \quad
+      \subfigure[Distribution of Returns (log scale)]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-logReturnsHistogram.pdf}}}       
+}
     \mbox{
-      \subfigure[Returns histogram.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-returnsHistogram.pdf}}} \quad
-      \subfigure[Autocorrelation of returns.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-acfPlot.pdf}}}
+      \subfigure[Annualized moving average volatility]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-avgVolatility.pdf}}}
+      \quad
+      \subfigure[Autocorrelation of returns.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-acfPlot-noAbs.pdf}}}
+      \quad
+      \subfigure[Autocorrelation of absolute returns.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-acfPlot-absonly.pdf}}}
       }
-    \caption{Examples of outputs and statistics from a single run of the FinancialModel simulation for default Cont's parametrization.}
-    \label{fig:sampleDynamicsCont}
+    \caption{Examples of outputs and statistics from a single run of the Cont FinancialModel simulation with $D=0.001$, $s=0.01$.}
+    \label{fig:sampleDynamicsCont_s01}
   \end{center}
 \end{figure}
 
+
+\begin{figure}[htbp]
+  \begin{center}
+    \includegraphics[width=1.00\textwidth]{../graphics/Cont-Fig3.png}
+    \caption{Corresponding figure from Cont's simulation with $D=0.001$, $s=0.01$.}
+    \label{fig:ContFig3}
+  \end{center}
+\end{figure}
+
+
+\begin{figure}[htbp]
+  \begin{center}
+   \mbox{
+      \subfigure[Trade volumes.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-volumesPlot.pdf}}}
+      \quad
+      \subfigure[Price]{\scalebox{0.33}{ \includegraphics[width=1.0\textwidth]{../graphics/Cont-pricesPlot.pdf}}} \quad
+      }
+    \mbox{
+      \subfigure[Raw and absolute log returns.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-returnsPlot.pdf}}}
+      \quad
+      \subfigure[Returns histogram.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-returnsHistogram.pdf}}}
+      \quad
+      \subfigure[Distribution of Returns (log scale)]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-logReturnsHistogram.pdf}}}       
+}
+    \mbox{
+      \subfigure[Annualized moving average volatility]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-avgVolatility.pdf}}}
+      \quad
+      \subfigure[Autocorrelation of returns.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-acfPlot-noAbs.pdf}}}
+      \quad
+      \subfigure[Autocorrelation of absolute returns.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-acfPlot-absonly-to50.pdf}}}
+      }
+    \caption{Examples of outputs and statistics from a single run of the Cont FinancialModel simulation with $D=0.001$, $s=0.1$.}
+    \label{fig:sampleDynamicsCont_s1}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{center}
+    \includegraphics[width=1.0\textwidth]{../graphics/Cont-Fig4.png}
+    \caption{Corresponding figure from Cont's simulation with $D=0.001$, $s=0.1$.}
+    \label{fig:ContFig4}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{center}
+   \includegraphics[width=0.9\textwidth]{../graphics/Cont-acfPlot.pdf}
+    \caption{Autocorrelation in Cont simulation over a longer time scale, with $D=0.001$, $s=0.1$.}
+    \label{fig:ContACF1}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{center}   \includegraphics[width=1.00\textwidth]{../graphics/comparisonOfACFs.pdf}
+    \caption{Autocorrelation in Cont simulation $s=0.1$ and varying $D$, averaged over many runs.}
+    \label{fig:ContACF2}
+  \end{center}
+\end{figure}
+
+
 \subsection{Farmer Model}
-The Farmer model \cite{farmer2003} has two types of agents, which trade a single asset by means of a continuous double auction similar to those normally used on stock markets. "Patient" traders place orders place limit orders, which specify both a price and quantity they wish to buy or sell. Limit orders do not execute immediately, and may be canceled at any time. "Impatient" traders place market orders, specifying only a quantity, which execute immediately at the current best price, assuming there is sufficient liquidity provided by outstanding limit orders. This model also has simple behavioral logic for traders. Behavior is regulated by:
+The Farmer model (\cite{farmer2003}) has two types of agents, which trade a single asset by means of a continuous double auction similar to those normally used on stock markets. "Patient" traders place limit orders, which specify both a price and quantity they wish to buy or sell. Limit orders do not execute immediately, and may be canceled at any time. "Impatient" traders place market orders, specifying only a quantity, which execute immediately at the current best price, assuming there is sufficient liquidity provided by outstanding limit orders. This model also has simple behavioral logic for traders. Behavior is regulated by:
 \begin{itemize}
-\item Patient agents place limit orders of constant size at a Poisson rate per unit time, and with a randomly generated price. Orders are equally likely to be either buy or sell orders. Buy limit orders are placed uniformly anywhere in the semiinfinite interval below the current ask price ($-\infty < p < a(t)$), where $p$ is the \emph{logarithm} of the price; similarly for sell orders. A uniform distribution in log prices is equivalent to an exponential distribution in prices. In addition, outstanding limit orders are cancelled at a Poisson rate per unit time. All of these processes are independent.
-\item Impatient agents place market orders of constant size at a Poisson rate per unit time.
+\item Patient agents placing limit orders of constant size at a Poisson rate per unit time, and with a randomly generated price. Orders are equally likely to be either buy or sell orders. Buy limit orders are placed uniformly anywhere in the semiinfinite interval below the current ask price ($-\infty < p < a(t)$), where $p$ is the \emph{logarithm} of the price; similarly for sell orders. A uniform distribution in log prices is equivalent to an exponential distribution in prices. In addition, outstanding limit orders are cancelled at a Poisson rate per unit time. All of these processes are independent.
+\item Impatient agents placing market orders of constant size at a Poisson rate per unit time.
 \item A double auction order book. This manages the pending limit orders and facilitates trades between market and limit orders. It also provides aggregate market information such as return rate per unit time and bid-ask spreads.
 \end{itemize}
 This model explains a large portion of the spread and price diffusion of actual stocks given an order flow rate, which essentially means that the double auction structure has a large impact on the nature of market movements. The model also yields market behavior qualitatively close to actual markets in many respects, see Figure \ref{fig:sampleDynamicsFarmer}.
@@ -127,7 +195,7 @@ TODO Note: effect of price granularity
 \end{figure}
 
 \subsection{Farmer-Cont Model}
-We constructed a model combining aspects of the Farmer model with aspects of the Cont model. The result is a model which is still essentially zero intelligence, but which exhibits empirically positive characteristics of both models. In this model there are two types of agents, which interact via the continuous double auction mechanism, as in Farmer. In fact, the Patient traders, which place limit orders and thus provide liquidity, remain the same. Impatient traders are modeled after Cont. They have heterogeneous volatility thresholds, and place market orders depending upon how public information in the form of a normally distributed random variable compares with these thresholds.
+As an experiment, we constructed a model combining some aspects of the Farmer model with some aspects of the Cont model. The result is a model which is still essentially zero intelligence, but which exhibits empirically positive characteristics of both models. In this model there are two types of agents, which interact via the continuous double auction mechanism, as in Farmer. In fact, the Patient traders, which place limit orders and thus provide liquidity, remain the same. Impatient traders are modeled after Cont. They have heterogeneous volatility thresholds, and place market orders depending upon how public information in the form of a normally distributed random variable compares with these thresholds. Some fraction $s$ of agents then adjust their volatility thresholds in light of current volatility by setting it to the trailing period's return rate.
 TODO Show results.
 TODO Note: liquidity issues
 
