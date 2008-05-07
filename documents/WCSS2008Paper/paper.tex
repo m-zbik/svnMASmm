@@ -92,11 +92,11 @@ One down side of the Cont model that is not noted in the papers is that there ap
 \subfigure[Price]{\scalebox{0.33}{\includegraphics[width=1.0\textwidth]{../graphics/Cont-s01-pricesPlot.pdf}}}
 }
     \mbox{
-      \subfigure[Raw and absolute log returns.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-returnsPlot.pdf}}}
+      \subfigure[Raw and absolute returns.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-returnsPlot.pdf}}}
       \quad
-      \subfigure[Distribution of Returns]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-returnsHistogram.pdf}}}       
+      \subfigure[Returns histogram.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-returnsHistogram.pdf}}}       
       \quad
-      \subfigure[Distribution of Returns (log scale)]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-logReturnsHistogram.pdf}}}       
+      \subfigure[Log returns histogram.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-logReturnsHistogram.pdf}}}       
 }
     \mbox{
       \subfigure[Annualized moving average volatility]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-avgVolatility.pdf}}}
@@ -125,7 +125,7 @@ One down side of the Cont model that is not noted in the papers is that there ap
       \quad
       \subfigure[Returns histogram.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-returnsHistogram.pdf}}}
       \quad
-      \subfigure[Distribution of Returns (log scale)]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-logReturnsHistogram.pdf}}}       
+      \subfigure[Log returns histogram.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-logReturnsHistogram.pdf}}}       
 }
     \mbox{
       \subfigure[Annualized moving average volatility]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-avgVolatility.pdf}}}
@@ -144,19 +144,16 @@ One down side of the Cont model that is not noted in the papers is that there ap
 
 The Farmer model (\cite{farmer2003}) has two types of agents, which trade a single asset by means of a continuous double auction similar to those normally used on stock markets. "Patient" traders place limit orders, which specify both a price and quantity they wish to buy or sell. Limit orders do not execute immediately, and may be canceled at any time. "Impatient" traders place market orders, specifying only a quantity, which execute immediately at the current best price, assuming there is sufficient liquidity provided by outstanding limit orders. This model also has simple behavioral logic for traders. Behavior is regulated by:
 \begin{itemize}
-\item Patient agents placing limit orders of constant size at a Poisson rate per unit time, and with a randomly generated price. Orders are equally likely to be either buy or sell orders. Buy limit orders are placed uniformly anywhere in the semiinfinite interval below the current ask price ($-\infty < p < a(t)$), where $p$ is the \emph{logarithm} of the price; similarly for sell orders. A uniform distribution in log prices is equivalent to an exponential distribution in prices. In addition, outstanding limit orders are cancelled at a Poisson rate per unit time. All of these processes are independent.
-\item Impatient agents placing market orders of constant size at a Poisson rate per unit time.
+\item Patient agents place \texttt{LimitOrders} of constant size at a Poisson rate per unit time, and with a randomly generated price. Orders are equally likely to be either buy or sell orders. Buy limit orders are placed uniformly anywhere in the semiinfinite interval below the current ask price ($-\infty < p < a(t)$), where $p$ is the \emph{logarithm} of the price; similarly for sell orders. A uniform distribution in log prices is equivalent to an exponential distribution in prices. In addition, outstanding limit orders are canceled at a Poisson rate per unit time. All of these processes are independent.
+\item Impatient agents place \texttt{MarketOrders} of constant size at a certain Poisson rate per unit time.
 \item A double auction order book. This manages the pending limit orders and facilitates trades between market and limit orders. It also provides aggregate market information such as return rate per unit time and bid-ask spreads.
 \end{itemize}
 This model explains a large portion of the spread and price diffusion of actual stocks given an order flow rate, which essentially means that the double auction structure has a large impact on the nature of market movements. The model also yields market behavior qualitatively close to actual markets in many respects, see Figure \ref{fig:sampleDynamicsFarmer}.
 
-TODO Note: log vs. non-log prices
-TODO Note: effect of price granularity
-
 \begin{figure}[htbp]
   \begin{center}
    \mbox{
-      \subfigure[Ask and bid prices.]{\scalebox{0.5}{\quad \quad \includegraphics[width=0.9\textwidth]{../graphics/Farmer-pricesPlot.pdf}}} \quad
+      \subfigure[Ask and bid prices.]{\scalebox{0.5}{\quad \quad \includegraphics[width=1.0\textwidth]{../graphics/Farmer-pricesPlot.pdf}}} \quad
       \subfigure[Raw and absolute returns.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-returnPlot.pdf}}}
       }
     \mbox{
@@ -175,6 +172,34 @@ TODO Note: effect of price granularity
 \subsection{Farmer-Cont Model}
 
 As an experiment, we constructed a model combining some aspects of the Farmer model with some aspects of the Cont model. The result is a model which is still essentially zero intelligence, but which exhibits empirically positive characteristics of both models. In this model there are two types of agents, which interact via the continuous double auction mechanism, as in Farmer. In fact, the Patient traders, which place limit orders and thus provide liquidity, remain the same. Impatient traders are modeled after Cont. They have heterogeneous volatility thresholds, and place market orders depending upon how public information in the form of a normally distributed random variable compares with these thresholds. Some fraction $s$ of agents then adjust their volatility thresholds in light of current volatility by setting it to the trailing period's return rate.
+
+\begin{figure}[htbp]
+  \begin{center}
+   \mbox{
+      \subfigure[Trade volumes.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/FC-volumesPlot.pdf}}}
+      \quad
+      \subfigure[Price]{\scalebox{0.33}{ \includegraphics[width=1.0\textwidth]{../graphics/FC-pricesPlot.pdf}}} \quad
+      }
+    \mbox{
+      \subfigure[Raw and absolute log returns.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/FC-returnsPlot.pdf}}}
+      \quad
+      \subfigure[Returns histogram.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/FC-returnsHistogram.pdf}}}
+      \quad
+      \subfigure[Returns histogram in logs.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/FC-logReturnsHistogram.pdf}}}       
+}
+    \mbox{
+      \subfigure[Annualized moving average volatility]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/FC-avgVolatility.pdf}}}
+      \quad
+      \subfigure[Snapshot of orderbook.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/FC-orderbooks.pdf}}}
+      \quad
+      \subfigure[Autocorrelation of absolute returns.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/FC-acfReturns.pdf}}}
+      }
+    \caption{Examples of outputs and statistics from a single run of the Farmer-Cont hybryd.}
+    \label{fig:ContLargeSSim}
+  \end{center}
+\end{figure}
+
+
 TODO Show results.
 TODO Note: liquidity issues
 
