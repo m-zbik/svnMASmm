@@ -43,13 +43,13 @@ ciplot(mins,maxs,r.x,'red');
 plot(r.x,r.f,'LineWidth',2,'Color','red');
 hold off;
 
-title('Hurst exponent for different values of s','FontSize',14);
-xlabel('Value of s','FontSize',14);
+title('Hurst exponent for different values of D','FontSize',14);
+xlabel('Value of D','FontSize',14);
 ylabel('Hurst exponent','FontSize',14);
 
 alpha(0.5)
     
-filename = 'comparisonOfHurstsS.bmp';
+filename = 'comparisonOfHurstsD.bmp';
 orient landscape;
 print('-dbmp', filename);
 

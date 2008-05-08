@@ -222,13 +222,9 @@ As an experiment, we constructed a model combining some aspects of the Farmer mo
   \end{center}
 \end{figure}
 
-TODO Note: liquidity issues
-
 \section{Verification of Correctness}
 
-TODO: show results side by side with original papers' figures
-
-These compare well with data shown in the original paper (shown in Figures \ref{fig:ContSmallSPap} and \ref{fig:ContLargeSPap}).
+The supreme objective was to recreate results reported by others rather than to create a standalone model of the market. Therefore, the validation focused on comparing outputs from our simulations to graphs and statistics from other papers. These compare well with data shown in the original paper (shown in Figures \ref{fig:ContSmallSPap} and \ref{fig:ContLargeSPap}).
 
 
 \begin{figure}[htbp]
@@ -263,7 +259,7 @@ FinancialMarketModel includes a set of wrappers that are useful for conducting m
       \subfigure[Hurst exponents for different $s$]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth, angle=270]{../graphics/comparisonOfHurstsS}}} 
       \subfigure[Hurst exponents for different $D$]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth, angle=270]{../graphics/comparisonOfHurstsD}}}
 
-    \caption{Autocorrelation and distributions in Cont simulation with $s=0.1$ and varying $D$, averaged over many runs. In bottom row, kernel regresion on Hurst exponents of time series generated from Con't model for varying levels of $s$ and $D$ is presented.}
+    \caption{Autocorrelation and distributions in Cont simulation with $s=0.1$ and varying $D$, averaged over many runs. In bottom row, kernel regresion with 95\% resampled confidence intervals on Hurst exponents of time series generated from Con't model for varying levels of $s$ and $D$ is presented.}
     \label{fig:ContMultiRun}
   \end{center}
 \end{figure}
