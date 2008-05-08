@@ -92,11 +92,11 @@ One down side of the Cont model that is not noted in the papers is that there ap
 \subfigure[Price]{\scalebox{0.33}{\includegraphics[width=1.0\textwidth]{../graphics/Cont-s01-pricesPlot.pdf}}}
 }
     \mbox{
-      \subfigure[Raw and absolute returns.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-returnsPlot.pdf}}}
+      \subfigure[Raw and absolute log returns.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-returnsPlot.pdf}}}
       \quad
-      \subfigure[Returns histogram.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-returnsHistogram.pdf}}}       
+      \subfigure[Distribution of Returns]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-returnsHistogram.pdf}}}       
       \quad
-      \subfigure[Log returns histogram.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-logReturnsHistogram.pdf}}}       
+      \subfigure[Distribution of Returns (log scale)]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-logReturnsHistogram.pdf}}}       
 }
     \mbox{
       \subfigure[Annualized moving average volatility]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-s01-avgVolatility.pdf}}}
@@ -125,7 +125,7 @@ One down side of the Cont model that is not noted in the papers is that there ap
       \quad
       \subfigure[Returns histogram.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-returnsHistogram.pdf}}}
       \quad
-      \subfigure[Log returns histogram.]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-logReturnsHistogram.pdf}}}       
+      \subfigure[Distribution of Returns (log scale)]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-logReturnsHistogram.pdf}}}       
 }
     \mbox{
       \subfigure[Annualized moving average volatility]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/Cont-avgVolatility.pdf}}}
@@ -144,30 +144,53 @@ One down side of the Cont model that is not noted in the papers is that there ap
 
 The Farmer model (\cite{farmer2003}) has two types of agents, which trade a single asset by means of a continuous double auction similar to those normally used on stock markets. "Patient" traders place limit orders, which specify both a price and quantity they wish to buy or sell. Limit orders do not execute immediately, and may be canceled at any time. "Impatient" traders place market orders, specifying only a quantity, which execute immediately at the current best price, assuming there is sufficient liquidity provided by outstanding limit orders. This model also has simple behavioral logic for traders. Behavior is regulated by:
 \begin{itemize}
-\item Patient agents place \texttt{LimitOrders} of constant size at a Poisson rate per unit time, and with a randomly generated price. Orders are equally likely to be either buy or sell orders. Buy limit orders are placed uniformly anywhere in the semiinfinite interval below the current ask price ($-\infty < p < a(t)$), where $p$ is the \emph{logarithm} of the price; similarly for sell orders. A uniform distribution in log prices is equivalent to an exponential distribution in prices. In addition, outstanding limit orders are canceled at a Poisson rate per unit time. All of these processes are independent.
-\item Impatient agents place \texttt{MarketOrders} of constant size at a certain Poisson rate per unit time.
+\item Patient agents place \texttt{LimitOrders} of constant size $\sigma$ at a Poisson rate of $\alpha$ per unit time, and with a randomly generated price. Orders are equally likely to be either buy or sell orders. Buy limit orders are placed uniformly anywhere in the semi-infinite interval below the current ask price ($-\infty < p < a(t)$), where $p$ is the \emph{logarithm} of the price; similarly for sell orders. A uniform distribution in log prices is equivalent to an exponential distribution in prices. In addition, outstanding limit orders are cancelled at a Poisson rate of $\delta$ per unit time. All of these processes are independent.
+\item Impatient agents place \texttt{MarketOrders} of constant size $\sigma$ at a Poisson rate of $\mu$ per unit time.
 \item A double auction order book. This manages the pending limit orders and facilitates trades between market and limit orders. It also provides aggregate market information such as return rate per unit time and bid-ask spreads.
 \end{itemize}
-This model explains a large portion of the spread and price diffusion of actual stocks given an order flow rate, which essentially means that the double auction structure has a large impact on the nature of market movements. The model also yields market behavior qualitatively close to actual markets in many respects, see Figure \ref{fig:sampleDynamicsFarmer}.
+This model explains a large portion of the spread and price diffusion of actual stocks given an order flow rate, which implies that the double auction structure has a significant impact on the nature of market movements. The model also yields market behavior qualitatively close to actual markets in many respects, see Figure \ref{fig:sampleDynamicsFarmer}.
+However, as a model of market dynamics, it fails on some fronts. Notably, we do not see realistic volatility clustering. Volumes are fairly consistent, as are average returns. There is no lingering positive autocorrelation of absolute returns. Also notice the amplitude of single-period returns in Figure \ref{fig:sampleDynamicsFarmer}(g). The average per-step absolute returns are around $20\%$, much higher than empirically plausible, at least if a step is meant to signify short period, such as a day or less. This is clearly seen when we use actual prices in the order book. The same prices which look somewhat reasonable when viewed on a log scale appear quite volatile prices when viewed on a normal scale as in Figure \ref{fig:dynamicsFarmerNonLog}.
 
 \begin{figure}[htbp]
   \begin{center}
    \mbox{
-      \subfigure[Ask and bid prices.]{\scalebox{0.5}{\quad \quad \includegraphics[width=1.0\textwidth]{../graphics/Farmer-pricesPlot.pdf}}} \quad
-      \subfigure[Raw and absolute returns.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-returnPlot.pdf}}}
-      }
-    \mbox{
-      \subfigure[Orderbook shape.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-orderbooks.pdf}}} \quad
+      \subfigure[Snapshot of Orderbook.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-orderbooks.pdf}}} 
+      \quad
+      \subfigure[Bid and ask log prices.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-pricesPlot.pdf}}}
+}
+   \mbox{
+      \subfigure[Log returns histogram.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-returnsHistogram.pdf}}}
+      \quad
       \subfigure[Trade volumes.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-volumesPlot.pdf}}}
       }
-    \mbox{
-      \subfigure[Returns histogram.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-returnsHistogram.pdf}}} \quad
+\mbox{
+      \subfigure[Rolling Average Volatility.]{\scalebox{0.5}{\includegraphics[width=1.0\textwidth]{../graphics/Farmer-avgVolatility.pdf}}}
+      \quad
       \subfigure[Autocorrelation of returns.]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-acfReturns.pdf}}}
       }
-    \caption{Examples of outputs and statistics from a single run of the FinancialModel simulation for default Farmer's parametrization.}
+\mbox{
+      \subfigure[Raw and absolute log returns.]{\scalebox{0.6}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-returnPlot.pdf}}}
+     }
+    \caption{Examples of outputs and statistics from a single run of the Farmer FinancialModel simulation with $\alpha=.585$, $\delta=.39$, $\mu=.325$, $\sigma=1$. These parameters are derived from empirical data.}
     \label{fig:sampleDynamicsFarmer}
   \end{center}
 \end{figure}
+
+\begin{figure}[htbp]
+  \begin{center}
+   \mbox{
+      \subfigure[Snapshot of Orderbook with actual prices (log x scale).]{\scalebox{0.6}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-linear-orderbooks.pdf}}} 
+}
+   \mbox{
+\subfigure[Prices (log scale).]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-linear-pricesPlot-logscale.pdf}}}
+      \quad
+\subfigure[Same prices (natural scale).]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/Farmer-linear-pricesPlot.pdf}}}
+      }
+    \caption{Examples of outputs and statistics from a single run of the FinancialModel simulation with $\alpha=.585$, $\delta=.39$, $\mu=.325$, $\sigma=1$. These parameters are derived from empirical data.}
+    \label{fig:dynamicsFarmerNonLog}
+  \end{center}
+\end{figure}
+
 
 \subsection{Farmer-Cont Model}
 
@@ -232,8 +255,8 @@ FinancialMarketModel includes a set of wrappers that are useful for conducting m
 \begin{figure}[htbp]
   \begin{center}
    \mbox{
-      \subfigure[Autocorrelation functions]{\scalebox{0.5}{\quad \quad \includegraphics[width=1.0\textwidth]{../graphics/comparisonOfACFs.pdf}}} \quad
-      \subfigure[Return distributions]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth]{../graphics/comparisonOfHistograms.pdf}}}
+      \subfigure[Autocorrelation functions]{\scalebox{0.45}{\quad \quad \includegraphics[width=1.0\textwidth]{../graphics/comparisonOfACFs.pdf}}} \quad
+      \subfigure[Return distributions]{\scalebox{0.45}{\includegraphics[width=1.00\textwidth]{../graphics/comparisonOfHistograms.pdf}}}
       }
     \caption{Autocorrelation and distributions in Cont simulation with $s=0.1$ and varying $D$, averaged over many runs.}
     \label{fig:ContMultiRun}
