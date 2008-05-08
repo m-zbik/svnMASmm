@@ -222,6 +222,63 @@ As an experiment, we constructed a model combining some aspects of the Farmer mo
   \end{center}
 \end{figure}
 
+\subsection{Westerhoff Model}
+
+The Westerhoff model (\cite{westerhoff2004}) includes a limited number of markets in which two types of agents operate. Fundamentalists specialize in a certain market while chartists may switch between markets. More specifically, chartists use extrapolative methods to select markets that shows price trends but that are not too misaligned.
+
+The model considers $k = 1,2\dots K$ asset markets of equal size: the log fundamental value of asset $k$ in period $t + 1$ is regulated by a news arrival process:
+\begin{equation*}
+F_{t+1}^k = F_t^k + N
+\end{equation*}
+
+Market makers are present in all markets and stand ready to absorb imbalances between buyers and sellers: they adjust prices $S^k_t$ according to a loglinear price impact function.
+Traders submit orders according to their expectations of the price movements. Fundamentalist expect the prices of the assets to return to their fundamental values and their demand is expressed as:
+\begin{align*}
+D_t^{F,k} &= a^F[E_t^F(S^k_{t+1}) - S^k_{t}],\\
+E_t^F &= S^k_{t} + b^F(F_t^k - S^k_t)
+\end{align*}
+On the other hand, chartists follow simple technical analysis rules:
+\begin{align*}
+D_t^{C,k} &= a^C[E_t^C(S^k_{t+1}) - S^k_{t}],\\
+E_t^C &= S^k_{t} + b^C(S_t^k - S^k_{t-1})
+\end{align*}
+
+Chartists try to identify the attractiveness of markets with a fitness measure that entails the risk of being captured in a bursting bubble. The attractiveness of market $k$ is defined as:
+\begin{equation*}
+A^k_t = \log \frac{1}{1+f(F_t^k - S^k_t)^2}
+\end{equation*}
+The relative percentage of chartists choosing market $k$ depends on the attractiveness of that market and is defined as:
+\begin{equation*}
+W^k_t = \frac{\exp(gA^k_t)}{\sum_{k=1}^K \exp(gA^k_t)}
+\end{equation*}
+As shown in Figure \ref{fig:Westerhoffsim}, this model is capable of  generating complex price dynamics, volatility clustering, fat tails for the distribution of the returns and positive autocorrelation for absolute returns.
+\begin{figure}[htbp]
+  \begin{center}
+   \mbox{
+      \subfigure[Log price $S^1$]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/s1dyn.pdf}}}
+      \quad
+      \subfigure[Log price index]{\scalebox{0.33}{ \includegraphics[width=1.0\textwidth]{../graphics/Idyn.pdf}}} \quad
+      \subfigure[Fraction of chartist in market 1]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/w1dyn.pdf}}}
+      }
+    \mbox{
+      \subfigure[Raw returns of asset 1]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/rets1.pdf}}}
+      \quad
+      \subfigure[Raw returns of price index ]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/retI.pdf}}}
+      \quad
+       \subfigure[Attractor for log price changes of asset 1]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/phasespaceS1.pdf}}}   
+   }
+    \mbox{
+      \subfigure[Attractor for price index changes]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/phasespaceI.pdf}}}
+      \quad
+      \subfigure[Autocorrelation for raw returns of asset 1]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/acfS1.pdf}}}
+      \quad
+      \subfigure[Autocorrelation of absolute returns of asset 1]{\scalebox{0.33}{\includegraphics[width=1.00\textwidth]{../graphics/acfabsS1.pdf}}}
+      }
+    \caption{Examples of outputs and statistics from a single run of the Westerhoff simulation with $K = 5$, $N=0.0002$, $a^M=0.1$, $a^c, b^c = 5$, $a^F, b^F = 0.2$, $f = 1,000,000$ and $g = 1.2$.}
+    \label{fig:Westerhoffsim}
+  \end{center}
+\end{figure}
+
 \section{Verification of Correctness}
 
 The supreme objective was to recreate results reported by others rather than to create a standalone model of the market. Therefore, the validation focused on comparing outputs from our simulations to graphs and statistics from other papers. These compare well with data shown in the original paper (shown in Figures \ref{fig:ContSmallSPap} and \ref{fig:ContLargeSPap}).
@@ -256,8 +313,8 @@ FinancialMarketModel includes a set of wrappers that are useful for conducting m
       }
       
 
-      \subfigure[Hurst exponents for different $s$]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth, angle=270]{../graphics/comparisonOfHurstsS}}} 
-      \subfigure[Hurst exponents for different $D$]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth, angle=270]{../graphics/comparisonOfHurstsD}}}
+      \subfigure[Hurst exponents for different $s$]{\scalebox{0.5}{\includegraphics[width=0.9\textwidth, angle=270]{../graphics/comparisonOfHurstsS}}} 
+      \subfigure[Hurst exponents for different $D$]{\scalebox{0.5}{\includegraphics[width=0.9\textwidth, angle=270]{../graphics/comparisonOfHurstsD}}}
 
     \caption{Autocorrelation and distributions in Cont simulation with $s=0.1$ and varying $D$, averaged over many runs. In bottom row, kernel regresion with 95\% resampled confidence intervals on Hurst exponents of time series generated from Con't model for varying levels of $s$ and $D$ is presented.}
     \label{fig:ContMultiRun}
