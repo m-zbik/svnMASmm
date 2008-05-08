@@ -148,22 +148,18 @@ public class FinancialModelWithUI extends GUIState {
 						myReporter.updateTrailing();
 					}
 
-					// TODO: why set series three times??
-					if (priceFrame.isVisible()) {
+					if (priceFrame.isVisible() || 
+						returnFrame.isVisible() ||
+						volumeFrame.isVisible()) 
+					{
 						priceChart.disable();
-						myReporter.setSeries();
-						priceChart.enable();
-					}
-
-					if (returnFrame.isVisible()) {
 						returnChart.disable();
-						myReporter.setSeries();
-						returnChart.enable();
-					}
-
-					if (volumeFrame.isVisible()) {
 						volumeChart.disable();
+
 						myReporter.setSeries();
+					
+						priceChart.enable();
+						returnChart.enable();
 						volumeChart.enable();
 					}
 
@@ -280,8 +276,8 @@ public class FinancialModelWithUI extends GUIState {
 		orderHist.setRangeAxisLabel("Number of observations");
 		orderHist.getChartPanel().getChart().setBackgroundPaint(Color.white);
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
-			orderHist.addSeries(fakeArray, 150, "sell orders for asset " + a, null);
 			orderHist.addSeries(fakeArray, 150, "buy orders for asset " + a, null);
+			orderHist.addSeries(fakeArray, 150, "sell orders for asset " + a, null);
 		}
 		orderHist.update();
 		orderHistFrame = orderHist.createFrame(this);

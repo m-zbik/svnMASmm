@@ -39,12 +39,14 @@ public class GUIReporter implements Steppable {
 	
 	public ArrayList<Vector<Double>> volumeMemory = new ArrayList<Vector<Double>>();
 	
-	public int NumViewable = 10000; // also, the #/data points used in
+	// The number of data points saved and shown for the price, return, and volume series'
+	// Also, the #/data points used in calculating autocorrelation
+	public int NumViewable = 10000; 
 
-	// calculating acf
-
+	// number of steps "lag" to compute the autocorrelation for
 	public int ACFViewable = 200;
 
+	// number of steps to average over when doing trailing averages
 	public int trailingSampleSize = 365;
 	
 	FinancialModel myModel;
