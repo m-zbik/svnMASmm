@@ -258,7 +258,12 @@ FinancialMarketModel includes a set of wrappers that are useful for conducting m
       \subfigure[Autocorrelation functions]{\scalebox{0.45}{\quad \quad \includegraphics[width=1.0\textwidth]{../graphics/comparisonOfACFs.pdf}}} \quad
       \subfigure[Return distributions]{\scalebox{0.45}{\includegraphics[width=1.00\textwidth]{../graphics/comparisonOfHistograms.pdf}}}
       }
-    \caption{Autocorrelation and distributions in Cont simulation with $s=0.1$ and varying $D$, averaged over many runs.}
+      
+
+      \subfigure[Hurst exponents for different $s$]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth, angle=270]{../graphics/comparisonOfHurstsS}}} 
+      \subfigure[Hurst exponents for different $D$]{\scalebox{0.5}{\includegraphics[width=1.00\textwidth, angle=270]{../graphics/comparisonOfHurstsD}}}
+
+    \caption{Autocorrelation and distributions in Cont simulation with $s=0.1$ and varying $D$, averaged over many runs. In bottom row, kernel regresion on Hurst exponents of time series generated from Con't model for varying levels of $s$ and $D$ is presented.}
     \label{fig:ContMultiRun}
   \end{center}
 \end{figure}
