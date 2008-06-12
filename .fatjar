@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Thu May 08 19:52:07 EDT 2008
+onejar.license.required=false
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=true
+jarname=FinancialMarketModel.jar
+manifest.mergeall=true
+manifest.mainclass=gui.FinancialModelWithUI
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=
+includes=

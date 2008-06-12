@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Mason"/>
+	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/gnujaxp.jar"/>
+	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/itext-2.0.6.jar"/>
+	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/jcommon-1.0.12.jar"/>
+	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/jfreechart-1.0.8a.jar"/>
+	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/jfreechart-1.0.8a-experimental.jar"/>
+	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/jfreechart-1.0.8a-swt.jar"/>
+	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/junit.jar"/>
+	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/servlet.jar"/>
+	<classpathentry kind="lib" path="C:/MAStools/libraries/jmf.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

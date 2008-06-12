@@ -68,7 +68,7 @@ public class Reporter implements Steppable {
 			String temp = "";
 			temp = temp + myModel.runID + "	";
 			temp = temp + myModel.schedule.getTime() + "	";
-			temp = temp + asset + "	";
+			temp = temp + myModel.parameterMap.get("Cont_D") + "	";
 			temp = temp + myModel.myMarket.getAskPriceForAsset(asset)+ "	";
 			temp = temp + myModel.myMarket.getBidPriceForAsset(asset)+ "	";
 			temp = temp + myModel.myMarket.getAverageTradePriceForAsset(asset) + "	";
