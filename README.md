@@ -7,7 +7,7 @@ The project was imported from: http://svn2.assembla.com/svn/MarketModel
 
 Below is the description from the Maciej Latek Assembla:
 
-//////////
+/*********************************************************
 Home
 -----
 Version 25, last updated by MaciejMLatek at 2008-08-19
@@ -39,9 +39,8 @@ Documentation
    - Data Summary Document with Cont equivalent STATA graphs for SP500 Daily Quotes, IBM Per Transaction Quotes, and Simulation (Farmer and Cont models) Quotes
    - Data Analysis Slides: comparison between SP500, IBM and "Mason"
    - All datasets have been uploaded FTP server to: wean.css.gmu.edu 
-   
 
-//////////
+
 
 
 OrderBook
@@ -83,7 +82,6 @@ At present several order books have been implemented:
    - LSBook
    
 
-//////////
 
 
 GenericPlayer
@@ -105,8 +103,7 @@ Current Players deriving from GenericPlayer are:
    - FCImpatientPlayer (for Farmer-Cont)
    - LSPlayer
 
-   
-//////////
+
 
 
 LimitOrder
@@ -144,7 +141,6 @@ At any time, the player/investor may check the status of his orders (to do accou
    - LimitStatus getStatus() where LimitStatus is one of (Pending, Expired, Partially_Executed, Fully_Executed).
 
 
-//////////
 
 
 RunGuide
@@ -182,7 +178,7 @@ Finally, you're ready to run the model.
 All Mason simulations have common interface. You can refer to following slides for explanation of control window that should appear.
 
 
-//////////
+**********************************************************/
 
 
 
