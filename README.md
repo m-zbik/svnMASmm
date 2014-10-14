@@ -6,8 +6,8 @@ SVN assembla  Financial Market Model on MASON  from http://svn2.assembla.com/svn
 The project was imported from: http://svn2.assembla.com/svn/MarketModel
 
 Below is the description from the Maciej Latek Assembla:
-.....
-.....
+
+//////////
 Home
 -----
 Version 25, last updated by MaciejMLatek at 2008-08-19
@@ -40,7 +40,9 @@ Documentation
    - Data Analysis Slides: comparison between SP500, IBM and "Mason"
    - All datasets have been uploaded FTP server to: wean.css.gmu.edu 
    
-.....
+
+//////////
+
 
 OrderBook
 -----
@@ -80,7 +82,9 @@ At present several order books have been implemented:
    - DoubleAuctionOrderBook behaves like a typical stock market. Some (patient) traders place limit orders which specify a quantity and price. Other (impatient) traders place market orders which execute immediately at the market price, provided that there is adequate liquidity provided by outstanding limit orders. As implemented, placing or cancelling a limit order takes log time, placing a market order takes constant time, and cleanup takes linear time, all w.r.t. the number of limit orders pending.
    - LSBook
    
-.....
+
+//////////
+
 
 GenericPlayer
 -----
@@ -100,8 +104,10 @@ Current Players deriving from GenericPlayer are:
    - FarmerPatientPlayer
    - FCImpatientPlayer (for Farmer-Cont)
    - LSPlayer
+
    
-.....
+//////////
+
 
 LimitOrder
 -----
@@ -137,7 +143,9 @@ At any time, the player/investor may check the status of his orders (to do accou
 
    - LimitStatus getStatus() where LimitStatus is one of (Pending, Expired, Partially_Executed, Fully_Executed).
 
-.....
+
+//////////
+
 
 RunGuide
 -----
@@ -172,8 +180,9 @@ Finally, you're ready to run the model.
    - If you're using eclipse, go to src/gui and run FinancialModelWithUI.java as a Java Application.
 
 All Mason simulations have common interface. You can refer to following slides for explanation of control window that should appear.
-.....
-.....
+
+
+//////////
 
 
 
