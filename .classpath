@@ -2,15 +2,25 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Mason"/>
-	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/gnujaxp.jar"/>
-	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/itext-2.0.6.jar"/>
-	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/jcommon-1.0.12.jar"/>
-	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/jfreechart-1.0.8a.jar"/>
-	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/jfreechart-1.0.8a-experimental.jar"/>
-	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/jfreechart-1.0.8a-swt.jar"/>
-	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/junit.jar"/>
-	<classpathentry kind="lib" path="C:/MAStools/libraries/libraries/servlet.jar"/>
-	<classpathentry kind="lib" path="C:/MAStools/libraries/jmf.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/JMF2.1.1e/lib/customizer.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/JMF2.1.1e/lib/jmf.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/JMF2.1.1e/lib/mediaplayer.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/JMF2.1.1e/lib/multiplayer.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/JMF2.1.1e/lib/sound.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/Java3D/1.5.1/lib/ext/j3dcore.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/Java3D/1.5.1/lib/ext/j3dutils.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/Java3D/1.5.1/lib/ext/vecmath.jar"/>
+	<classpathentry kind="lib" path="C:/MICHAL_DOK/NAUKA/SZKOLA/SGH/MGR_Praca/Modelowanie wieloagentowe/Mason18/mason/lib/bsh-2.0b4.jar"/>
+	<classpathentry kind="lib" path="C:/MICHAL_DOK/NAUKA/SZKOLA/SGH/MGR_Praca/Modelowanie wieloagentowe/Mason18/mason/lib/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="C:/MICHAL_DOK/NAUKA/SZKOLA/SGH/MGR_Praca/Modelowanie wieloagentowe/Mason18/mason/lib/gluegen-rt-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="C:/MICHAL_DOK/NAUKA/SZKOLA/SGH/MGR_Praca/Modelowanie wieloagentowe/Mason18/mason/lib/itext-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/MICHAL_DOK/NAUKA/SZKOLA/SGH/MGR_Praca/Modelowanie wieloagentowe/Mason18/mason/lib/jcommon-1.0.21.jar"/>
+	<classpathentry kind="lib" path="C:/MICHAL_DOK/NAUKA/SZKOLA/SGH/MGR_Praca/Modelowanie wieloagentowe/Mason18/mason/lib/jfreechart-1.0.17.jar"/>
+	<classpathentry kind="lib" path="C:/MICHAL_DOK/NAUKA/SZKOLA/SGH/MGR_Praca/Modelowanie wieloagentowe/Mason18/mason/lib/joal.jar"/>
+	<classpathentry kind="lib" path="C:/MICHAL_DOK/NAUKA/SZKOLA/SGH/MGR_Praca/Modelowanie wieloagentowe/Mason18/mason/lib/joal-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="C:/MICHAL_DOK/NAUKA/SZKOLA/SGH/MGR_Praca/Modelowanie wieloagentowe/Mason18/mason/lib/jogl-all.jar"/>
+	<classpathentry kind="lib" path="C:/MICHAL_DOK/NAUKA/SZKOLA/SGH/MGR_Praca/Modelowanie wieloagentowe/Mason18/mason/lib/jogl-all-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="C:/MICHAL_DOK/NAUKA/SZKOLA/SGH/MGR_Praca/Modelowanie wieloagentowe/Mason18/mason/lib/portfolio.jar"/>
+	<classpathentry kind="lib" path="/MASON/jar/mason.18.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -113,7 +113,7 @@ public class FinancialModelWithUI extends GUIState {
 								temp2Array[i] = tempArray[i].doubleValue();
 							}
 							if (temp2Array.length > 0) {
-								returnHist.updateSeries(a, temp2Array, false);
+								returnHist.updateSeries(a, temp2Array/*, false*/); // mzbik 28.10.2014 I have commented 'false' because of the error '...not applicable for the arguments' in the HistogrammGenerator, line 158: public void updateSeries(int index, double[] vals)
 							}
 						}
 					}
@@ -127,14 +127,14 @@ public class FinancialModelWithUI extends GUIState {
 							double[] temp2Array = ((FinancialModel) state).myMarket.orderBooks.get(a).getBuyOrders();
 							if (temp2Array != null) {
 								if (temp2Array.length > 0) {
-									orderHist.updateSeries(2 * a, temp2Array, false);
+									orderHist.updateSeries(2 * a, temp2Array/*, false*/);// mzbik 28.10.2014 I have commented 'false' because of the error '...not applicable for the arguments' in the HistogrammGenerator, line 158: public void updateSeries(int index, double[] vals)
 								}
 							}
 
 							temp2Array = ((FinancialModel) state).myMarket.orderBooks.get(a).getSellOrders();
 							if (temp2Array != null) {
 								if (temp2Array.length > 0) {
-									orderHist.updateSeries(2 * a + 1, temp2Array, false);
+									orderHist.updateSeries(2 * a + 1, temp2Array/*, false*/); // mzbik 28.10.2014 I have commented 'false' because of the error '...not applicable for the arguments' in the HistogrammGenerator, line 158: public void updateSeries(int index, double[] vals)
 								}
 							}
 						}
