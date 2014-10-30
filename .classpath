@@ -22,5 +22,6 @@
 	<classpathentry kind="lib" path="C:/MICHAL_DOK/NAUKA/SZKOLA/SGH/MGR_Praca/Modelowanie wieloagentowe/Mason18/mason/lib/jogl-all-natives-windows-amd64.jar"/>
 	<classpathentry kind="lib" path="C:/MICHAL_DOK/NAUKA/SZKOLA/SGH/MGR_Praca/Modelowanie wieloagentowe/Mason18/mason/lib/portfolio.jar"/>
 	<classpathentry kind="lib" path="/MASON/jar/mason.18.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MASON"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

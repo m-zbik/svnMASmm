@@ -4,6 +4,10 @@
  See the file "LICENSE" for more information
  */
 
+/*
+ * All changes made by Michal Zbikowski are marked with: mzbik
+ */
+
 package gui;
 
 import java.awt.BorderLayout;
@@ -19,6 +23,7 @@ import sim.display.GUIState;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.util.media.chart.HistogramGenerator;
+import sim.util.media.chart.HistogramGeneratorProtecedUpdateMethodDoingPublic; //mzbik 30.10.2014
 import sim.util.media.chart.TimeSeriesChartGenerator;
 
 /**
@@ -47,12 +52,16 @@ public class FinancialModelWithUI extends GUIState {
 	public JFrame volumeFrame;
 
 	public HistogramGenerator returnHist;
+	
+	public HistogramGeneratorProtecedUpdateMethodDoingPublic returnHistUpdate; //mzbik 30.10.2014 comment on this in line 287 where: returnHist = returnHistUpdate;
 
 	public JFrame returnHistFrame;
 
 	public GUIReporter myReporter;
 
 	public HistogramGenerator orderHist;
+	
+	public HistogramGeneratorProtecedUpdateMethodDoingPublic orderHistUpdate; //mzbik 30.10.2014 comment on this in line 308 where orderHist = orderHistUpdate;
 
 	public JFrame orderHistFrame;
 
@@ -255,6 +264,7 @@ public class FinancialModelWithUI extends GUIState {
 		double[] fakeArray = { 1, 2, 3 };
 
 		returnHist = new HistogramGenerator();
+		returnHistUpdate = new HistogramGeneratorProtecedUpdateMethodDoingPublic(); //mzbik 30.10.2014 comment on this in line 287 where: returnHist = returnHistUpdate;
 		returnHist.setTitle("Returns histogram");
 		returnHist.setDomainAxisLabel("Value");
 		returnHist.setRangeAxisLabel("Number of observations");
@@ -262,7 +272,8 @@ public class FinancialModelWithUI extends GUIState {
 		for (int a = 0; a < myModel.parameterMap.get("numAssets"); a++) {
 			returnHist.addSeries(fakeArray, 60, "Return histogram for asset " + a, null);
 		}
-		returnHist.update();
+		returnHistUpdate.callProtectedUpdateFromHistGen(); //mzbik 30.10.2014 comment on this in line 287 where: returnHist = returnHistUpdate;
+		returnHist = returnHistUpdate; // mzbik 30.10.2014 I have changed update() (which was protected) to callProtectedUpdateFromHistGen() (which is public) -> the whole comment is in the callProtectedUpdateFromHistGen() in the package package sim.util.media.chart
 		returnHistFrame = returnHist.createFrame(this);
 		returnHistFrame.getContentPane().setLayout(new BorderLayout());
 		returnHistFrame.getContentPane().add(returnHist, BorderLayout.CENTER);
@@ -271,6 +282,7 @@ public class FinancialModelWithUI extends GUIState {
 		c.registerFrame(returnHistFrame);
 
 		orderHist = new HistogramGenerator();
+		orderHistUpdate = new HistogramGeneratorProtecedUpdateMethodDoingPublic(); //mzbik 30.10.2014 comment on this in line 308 where orderHist = orderHistUpdate;
 		orderHist.setTitle("Order books");
 		orderHist.setDomainAxisLabel("Value");
 		orderHist.setRangeAxisLabel("Number of observations");
@@ -279,7 +291,8 @@ public class FinancialModelWithUI extends GUIState {
 			orderHist.addSeries(fakeArray, 150, "buy orders for asset " + a, null);
 			orderHist.addSeries(fakeArray, 150, "sell orders for asset " + a, null);
 		}
-		orderHist.update();
+		orderHistUpdate.callProtectedUpdateFromHistGen(); //mzbik 30.10.2014 comment on this in line 308 where orderHist = orderHistUpdate;
+		orderHist = orderHistUpdate; // mzbik 30.10.2014 I have changed update() (which was protected) to callProtectedUpdateFromHistGen() (which is public) -> the whole comment is in the callProtectedUpdateFromHistGen() in the package package sim.util.media.chart
 		orderHistFrame = orderHist.createFrame(this);
 		orderHistFrame.getContentPane().setLayout(new BorderLayout());
 		orderHistFrame.getContentPane().add(orderHist, BorderLayout.CENTER);
