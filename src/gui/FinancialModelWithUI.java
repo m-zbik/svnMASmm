@@ -17,6 +17,7 @@ import java.awt.Paint;
 import javax.swing.JFrame;
 
 import model.FinancialModel;
+
 import sim.display.Console;
 import sim.display.Controller;
 import sim.display.GUIState;
